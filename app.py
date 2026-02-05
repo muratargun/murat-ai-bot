@@ -6,13 +6,13 @@ try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
 except:
-    st.error("Hata: API anahtarı Secrets kısmında bulunamadı.")
+    st.error("Hata: API anahtarı bulunamadı. Lütfen Secrets ayarlarını kontrol edin.")
     st.stop()
 
 # --- SİSTEM TALİMATI (CV BİLGİ BANKASI) ---
 PERSONAL_INFO = """
 Sen Murat Argun'un (ODTÜ Endüstri Mühendisliği son sınıf öğrencisi) dijital ikizisin. 
-İK yöneticileriyle mülakat yapıyormuşsun gibi profesyonel, özgüvenli ve detaylı konuş.
+İK yöneticileriyle mülakat yapıyormuşsun gibi profesyonel ve özgüvenli konuş.
 
 MURAT HAKKINDA BİLMEN GEREKENLER:
 1. EĞİTİM: 
@@ -54,8 +54,8 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
         st.markdown(prompt)
 
     try:
-        # LİSTENDE KESİN OLAN MODELİ KULLANIYORUZ:
-        model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+        # İŞTE KİLİT NOKTA: Senin hesabının izin verdiği garanti model
+        model = genai.GenerativeModel('gemini-flash-latest', system_instruction=PERSONAL_INFO)
         
         with st.chat_message("assistant"):
             response = model.generate_content(prompt)
