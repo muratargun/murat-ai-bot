@@ -1,12 +1,13 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- YAPILANDIRMA ---
+# --- GÜVENLİK ---
 try:
+    # Secrets'tan anahtarı çekiyoruz
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
-except:
-    st.error("API Anahtarı bulunamadı! Lütfen Secrets ayarlarını kontrol edin.")
+except Exception:
+    st.error("API Anahtarı bulunamadı! Lütfen Streamlit Secrets ayarlarını kontrol edin.")
     st.stop()
 
 # --- ÇOK DETAYLI MURAT ARGUN BİLGİ BANKASI ---
@@ -57,11 +58,9 @@ ETKİLEŞİM KURALLARI:
 2. Telefon numarası ve açık adres gibi hassas verileri doğrudan paylaşma; muratt.argun@gmail.com adresine yönlendir[cite: 7].
 3. Cevapların profesyonel, yardımsever ve ODTÜ kültürüne yakışır şekilde olsun.
 """
-
 st.set_page_config(page_title="Murat Argun AI", page_icon="🎓")
 st.title("🎓 Murat Argun - Dijital Asistan")
 
-# Chat arayüzü
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -75,12 +74,13 @@ if prompt := st.chat_input("Murat hakkında her şeyi sorabilirsiniz..."):
         st.markdown(prompt)
 
     try:
-        # Model isminin doğruluğuna dikkat: 'gemini-1.5-flash'
-        model = genai.GenerativeModel(model_name='gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+        # 404 HATASINI ÇÖZEN KRİTİK SATIR:
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
         
         with st.chat_message("assistant"):
             response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
     except Exception as e:
-        st.error(f"Hata: {e}")
+        st.error(f"Bağlantı Hatası: {e}")
+        st.info("İpucu: Eğer 404 devam ediyorsa Streamlit panelinden 'Reboot App' yapmayı deneyin.")
