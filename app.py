@@ -1,55 +1,44 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- GÜVENLİK ---
+st.title("🛠️ Sistem Teşhis Ekranı")
+
+# 1. API Anahtarını Kontrol Et
 try:
-    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-    genai.configure(api_key=GEMINI_API_KEY)
-except Exception:
-    st.error("API Anahtarı bulunamadı! Secrets ayarlarını kontrol edin.")
+    api_key = st.secrets["GEMINI_API_KEY"]
+    # Güvenlik için sadece ilk ve son 4 karakteri gösterelim
+    masked_key = f"{api_key[:4]}...{api_key[-4:]}"
+    st.success(f"✅ API Anahtarı Secrets içinde bulundu: {masked_key}")
+    genai.configure(api_key=api_key)
+except Exception as e:
+    st.error(f"❌ API Anahtarı Secrets'tan okunamadı! Hata: {e}")
     st.stop()
 
-# --- SİSTEM TALİMATI ---
-PERSONAL_INFO = """
-Sen Murat Argun'un (ODTÜ Endüstri Mühendisliği son sınıf öğrencisi) dijital ikizisin.
-Mülakat simülasyonu yapıyorsun.
-- Bosch Türkiye'de üretim planlama algoritması tasarladığını vurgula.
-- ODTÜ Verimlilik Topluluğu'nda 20+ kişilik ekibi yönettiğini anlat.
-- Teknik sorulara Python ve optimizasyon bilginle cevap ver.
-"""
+# 2. Modelleri Listele (Anahtarın neleri gördüğünü test et)
+st.write("---")
+st.write("📡 Google Sunucularına Bağlanılıyor...")
 
-st.set_page_config(page_title="Murat Argun AI", page_icon="🎓")
-st.title("🎓 Murat Argun - Dijital Asistan")
+try:
+    available_models = []
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            available_models.append(m.name)
+    
+    if available_models:
+        st.success(f"✅ Bağlantı Başarılı! Anahtarınız şu {len(available_models)} modeli görebiliyor:")
+        st.code("\n".join(available_models))
+        st.info("Eğer bu listeyi görüyorsanız, anahtarınız SAĞLAM demektir.")
+    else:
+        st.warning("⚠️ Bağlantı kuruldu ama hiç model bulunamadı. Anahtarınızın yetkisi kısıtlı olabilir.")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("Murat hakkında sorunuzu yazın..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    # --- GARANTİLİ MODEL SEÇİMİ (MAGIC FIX) ---
-    try:
-        # Önce en hızlı modeli dene
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
-        response = model.generate_content(prompt)
-    except Exception:
-        try:
-            # Hata verirse 'latest' sürümünü dene
-            model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=PERSONAL_INFO)
-            response = model.generate_content(prompt)
-        except Exception:
-            # O da olmazsa efsanevi 'gemini-pro'yu devreye sok (Bu kesin çalışır)
-            # Not: gemini-pro system_instruction desteklemezse manuel ekleriz
-            model = genai.GenerativeModel('gemini-pro')
-            combined_prompt = f"{PERSONAL_INFO}\n\nKULLANICI SORUSU: {prompt}"
-            response = model.generate_content(combined_prompt)
-
-    with st.chat_message("assistant"):
-        st.markdown(response.text)
-        st.session_state.messages.append({"role": "assistant", "content": response.text})
+except Exception as e:
+    st.error("❌ BAĞLANTI HATASI (Sorun Burada!)")
+    st.error(f"Hata Mesajı: {e}")
+    st.write("### Olası Çözümler:")
+    st.markdown("""
+    1. **Anahtar Hatalı:** Secrets kısmında anahtarı tırnak içinde yanlış yazmış olabilirsiniz. 
+       - Yanlış: `GEMINI_API_KEY = ""AIza...""` (Çift tırnak içinde çift tırnak)
+       - Doğru: `GEMINI_API_KEY = "AIza..."`
+    2. **Kopyalama Hatası:** Anahtarın başında veya sonunda boşluk kalmış olabilir.
+    3. **Proje Silinmiş:** Google AI Studio'da anahtarı oluşturduğunuz proje silinmiş olabilir.
+    """)
