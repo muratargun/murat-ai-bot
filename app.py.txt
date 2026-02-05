@@ -1,0 +1,39 @@
+import streamlit as st
+import google.generativeai as genai
+
+# --- YAPILANDIRMA ---
+# Buraya Google AI Studio'dan aldığın anahtarı yapıştır
+GEMINI_API_KEY = AIzaSyCFB5mDxG3livx9PXd2EqU4J9wU3m6X_ew 
+genai.configure(api_key=GEMINI_API_KEY)
+
+# --- MURAT ARGUN'UN BİLGİLERİ  ---
+PERSONAL_INFO = """
+Sen Murat Argun'un (ODTÜ Endüstri Mühendisliği öğrencisi) profesyonel asistanısın[cite: 1, 37]. 
+Murat'ın deneyimleri:
+- Bosch Türkiye'de Üretim Planlama stajyeri[cite: 14, 15].
+- ODTÜ Verimlilik Topluluğu Tasarım Koordinatörü (20+ kişilik ekip yönetimi)[cite: 20, 21, 26].
+- Yetenekler: Python, Adobe Photoshop, Power Platforms[cite: 43, 44, 47].
+- İletişim: muratt.argun@gmail.com[cite: 7].
+Lütfen profesyonel ve yardımsever bir dille cevap ver.
+"""
+
+st.title("🤖 Murat Argun - AI CV Bot")
+st.write("Murat'ın projeleri ve yetkinlikleri hakkında bilgi alabilirsiniz.")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("Sorunuzu buraya yazın..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+    with st.chat_message("assistant"):
+        response = model.generate_content(prompt)
+        st.markdown(response.text)
+        st.session_state.messages.append({"role": "assistant", "content": response.text})
