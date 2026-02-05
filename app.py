@@ -35,7 +35,7 @@ if prompt := st.chat_input("Sorunuzu buraya yazın..."):
 
     try:
         # Model isminin doğruluğuna dikkat: 'gemini-1.5-flash'
-        model = genai.GenerativeModel(model_name='gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+        model = genai.GenerativeModel(model_name='models/gemini-1.5-flash', system_instruction=PERSONAL_INFO)
         
         with st.chat_message("assistant"):
             response = model.generate_content(prompt)
