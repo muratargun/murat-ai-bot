@@ -9,7 +9,7 @@ except Exception:
     st.error("API Anahtarı bulunamadı! Secrets ayarlarını kontrol edin.")
     st.stop()
 
-# --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN MODU) ---
+# --- SİSTEM TALİMATI ---
 PERSONAL_INFO = """
 Sen Murat Argun'un profesyonel dijital temsilcisisin. 
 Görevin, Murat'ı merak edenlere onu 3. şahıs ağzından (Murat, o, kendisi) anlatmaktır. 
@@ -33,7 +33,7 @@ st.set_page_config(page_title="Murat Argun AI", page_icon="🎓")
 st.title("🎓 Murat Argun - Dijital Asistan")
 
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri, stajları veya projeleri hakkında size nasıl yardımcı olabilirim?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -44,15 +44,34 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    try:
-        # DÜZELTME BURADA: 'models/' kelimesini sildik. Sadece 'gemini-1.5-flash' kaldı.
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+    # --- ÇİLİNGİR MODU: HER KAPIYI DENEYEN KOD ---
+    response = None
+    error_log = []
+    
+    # Denenecek model isimleri sırasıyla:
+    candidate_models = [
+        'gemini-1.5-flash',          # En standart isim
+        'models/gemini-1.5-flash',   # Bazı versiyonların istediği isim
+        'gemini-1.5-flash-latest',   # Alternatif isim
+        'gemini-1.5-flash-001'       # Versiyon numaralı isim
+    ]
+
+    with st.chat_message("assistant"):
+        for model_name in candidate_models:
+            try:
+                model = genai.GenerativeModel(model_name, system_instruction=PERSONAL_INFO)
+                response = model.generate_content(prompt)
+                # Eğer buraya geldiyse hata yok demektir, döngüyü kır.
+                break 
+            except Exception as e:
+                # Hata aldıysa bir sonraki isme geç
+                error_log.append(str(e))
+                continue
         
-        with st.chat_message("assistant"):
-            response = model.generate_content(prompt)
+        if response:
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
-            
-    except Exception as e:
-        st.error("Bir hata oluştu.")
-        st.warning(f"Hata detayı: {e}")
+        else:
+            # Tüm denemeler başarısız olursa
+            st.error("Üzgünüm, şu an bağlantı kurulamadı.")
+            st.code("\n".join(error_log)) # Teknik hata detayını göster
