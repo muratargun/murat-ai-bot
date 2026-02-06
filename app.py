@@ -6,10 +6,10 @@ try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
 except:
-    st.error("API Anahtarı bulunamadı!")
+    st.error("API Anahtarı bulunamadı! Lütfen Secrets ayarlarını kontrol edin.")
     st.stop()
 
-# --- SİSTEM TALİMATI (GÜNCELLENMİŞ KARAKTER) ---
+# --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
 PERSONAL_INFO = """
 Sen Murat Argun'un profesyonel dijital temsilcisisin. 
 Görevin, Murat'ı işe alım yöneticilerine ve şirket temsilcilerine 3. şahıs ağzından (Murat, o, kendisi) etkileyici, analitik ve çözüm odaklı bir dille tanıtmaktır.
@@ -49,12 +49,11 @@ MURAT'IN BİLGİ BANKASI:
   * [cite_start]Tasarım & Mühendislik: Siemens NX11 [cite: 46][cite_start], Adobe Creative Cloud[cite: 44, 45].
   * [cite_start]Diller: İleri Seviye İngilizce [cite: 39][cite_start], Başlangıç Seviye Çince[cite: 40, 41].
 """
-
 st.set_page_config(page_title="Murat Argun AI", page_icon="🎓")
 st.title("🎓 Murat Argun - Dijital Temsilci")
 
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un dijital asistanıyım. Onun eğitimi, başarıları veya teknik yetenekleri hakkında size bilgi verebilirim."}]
+    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Murat Argun'un eğitimi veya projeleri hakkında ne bilmek istersiniz?"}]
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -66,12 +65,18 @@ if prompt := st.chat_input("Sorunuzu buraya yazın..."):
         st.markdown(prompt)
 
     try:
-        # Ücretsiz ve kararlı model
-        model = genai.GenerativeModel('models/gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+        # En stabil model ismi
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
         
         with st.chat_message("assistant"):
             response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
     except Exception as e:
-        st.error(f"Bağlantı Hatası: {e}")
+        # Hata devam ederse alternatif isimlendirmeyi denetiyoruz
+        try:
+            model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=PERSONAL_INFO)
+            response = model.generate_content(prompt)
+            st.markdown(response.text)
+        except:
+            st.error("Google API şu an bu modele erişim vermiyor. Lütfen Streamlit'ten Reboot yapın.")
