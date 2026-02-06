@@ -9,7 +9,7 @@ except Exception:
     st.error("API Anahtarı bulunamadı! Secrets ayarlarını kontrol edin.")
     st.stop()
 
-# --- SİSTEM TALİMATI ---
+# --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
 PERSONAL_INFO = """
 Sen Murat Argun'un profesyonel dijital temsilcisisin. 
 Görevin, Murat'ı merak edenlere onu 3. şahıs ağzından (Murat, o, kendisi) anlatmaktır. 
@@ -44,35 +44,10 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # --- AKILLI MODEL SEÇİCİ (SELF-HEALING) ---
     try:
-        # 1. Hesabının görebildiği TÜM modelleri çek
-        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        
-        target_model = None
-        
-        # 2. Modelleri filtrele: "2.0" olanlar paralı/kotalı olabilir, onlardan kaç. "1.5" ve "flash" olanı bul.
-        # Öncelik sırası: 1.5-flash -> 1.5-pro -> flash-latest -> herhangi bir model
-        for m in available_models:
-            if "1.5" in m and "flash" in m and "002" not in m: # 002 bazen deneysel oluyor
-                target_model = m
-                break
-        
-        # Eğer 1.5-flash bulamazsa 1.5-pro dene
-        if not target_model:
-            for m in available_models:
-                if "1.5" in m and "pro" in m:
-                    target_model = m
-                    break
-        
-        # Hala bulamadıysa gemini-pro (eski güvenilir) kullan
-        if not target_model:
-            target_model = "models/gemini-pro"
-
-        # 3. Seçilen modeli kullan
-        # st.caption(f"🔧 Kullanılan Model: {target_model}") # Debug için (istersen açabilirsin)
-        
-        model = genai.GenerativeModel(target_model, system_instruction=PERSONAL_INFO)
+        # FİNAL ÇÖZÜM: Senin listendeki 16. sıradaki "latest" model.
+        # Bu model her zaman en güncel ve çalışan Flash sürümüne yönlendirir.
+        model = genai.GenerativeModel('models/gemini-flash-latest', system_instruction=PERSONAL_INFO)
         
         with st.chat_message("assistant"):
             response = model.generate_content(prompt)
@@ -80,13 +55,14 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
             st.session_state.messages.append({"role": "assistant", "content": response.text})
             
     except Exception as e:
-        st.error("Bağlantı kurulamadı.")
-        st.info("Lütfen Streamlit panelinden 'Reboot App' yapın.")
-        # Hata detayını sadece sen gör diye expander içine koydum
-        with st.expander("Teknik Hata Detayı"):
-            st.write(e)
-            st.write("Erişilebilen Modeller Listesi:")
-            try:
-                st.write([m.name for m in genai.list_models()])
-            except:
-                st.write("Liste alınamadı.")
+        # Eğer "latest" hata verirse, listedeki 3. sıradaki "2.0-flash" modelini dener.
+        try:
+            model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+            with st.chat_message("assistant"):
+                response = model.generate_content(prompt)
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e2:
+            st.error("Hata oluştu.")
+            st.warning(f"Detay: {e2}")
+            # Kota hatası (429) alırsan 1-2 dakika bekleyip tekrar dene.
