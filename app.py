@@ -44,34 +44,49 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # --- ÇİLİNGİR MODU: HER KAPIYI DENEYEN KOD ---
-    response = None
-    error_log = []
-    
-    # Denenecek model isimleri sırasıyla:
-    candidate_models = [
-        'gemini-1.5-flash',          # En standart isim
-        'models/gemini-1.5-flash',   # Bazı versiyonların istediği isim
-        'gemini-1.5-flash-latest',   # Alternatif isim
-        'gemini-1.5-flash-001'       # Versiyon numaralı isim
-    ]
-
-    with st.chat_message("assistant"):
-        for model_name in candidate_models:
-            try:
-                model = genai.GenerativeModel(model_name, system_instruction=PERSONAL_INFO)
-                response = model.generate_content(prompt)
-                # Eğer buraya geldiyse hata yok demektir, döngüyü kır.
-                break 
-            except Exception as e:
-                # Hata aldıysa bir sonraki isme geç
-                error_log.append(str(e))
-                continue
+    # --- AKILLI MODEL SEÇİCİ (SELF-HEALING) ---
+    try:
+        # 1. Hesabının görebildiği TÜM modelleri çek
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
         
-        if response:
+        target_model = None
+        
+        # 2. Modelleri filtrele: "2.0" olanlar paralı/kotalı olabilir, onlardan kaç. "1.5" ve "flash" olanı bul.
+        # Öncelik sırası: 1.5-flash -> 1.5-pro -> flash-latest -> herhangi bir model
+        for m in available_models:
+            if "1.5" in m and "flash" in m and "002" not in m: # 002 bazen deneysel oluyor
+                target_model = m
+                break
+        
+        # Eğer 1.5-flash bulamazsa 1.5-pro dene
+        if not target_model:
+            for m in available_models:
+                if "1.5" in m and "pro" in m:
+                    target_model = m
+                    break
+        
+        # Hala bulamadıysa gemini-pro (eski güvenilir) kullan
+        if not target_model:
+            target_model = "models/gemini-pro"
+
+        # 3. Seçilen modeli kullan
+        # st.caption(f"🔧 Kullanılan Model: {target_model}") # Debug için (istersen açabilirsin)
+        
+        model = genai.GenerativeModel(target_model, system_instruction=PERSONAL_INFO)
+        
+        with st.chat_message("assistant"):
+            response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
-        else:
-            # Tüm denemeler başarısız olursa
-            st.error("Üzgünüm, şu an bağlantı kurulamadı.")
-            st.code("\n".join(error_log)) # Teknik hata detayını göster
+            
+    except Exception as e:
+        st.error("Bağlantı kurulamadı.")
+        st.info("Lütfen Streamlit panelinden 'Reboot App' yapın.")
+        # Hata detayını sadece sen gör diye expander içine koydum
+        with st.expander("Teknik Hata Detayı"):
+            st.write(e)
+            st.write("Erişilebilen Modeller Listesi:")
+            try:
+                st.write([m.name for m in genai.list_models()])
+            except:
+                st.write("Liste alınamadı.")
