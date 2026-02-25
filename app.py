@@ -1,73 +1,88 @@
+# --- TEMA YÖNETİMİ ---
 import streamlit as st
 import google.generativeai as genai
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
 
-# --- TEMA YÖNETİMİ ---
+# --- TEMA SAKLAMA ---
 if "theme" not in st.session_state:
     st.session_state.theme = "Dark"
 
-# Sağ üst köşeye küçük bir mod seçici ekleyelim
+# Sağ üst köşeye şık bir mod seçici
 col1, col2 = st.columns([0.8, 0.2])
 with col2:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
 
-# --- ÖZELLEŞTİRİLMİŞ CSS (İkonlar Gizli & Dinamik Temalar) ---
+# --- CSS: MODERNIZE & ICON REMOVAL ---
+# Temaya göre renkleri belirle
 if st.session_state.theme == "Dark":
-    bg_color = "#0e1117"
+    main_bg = "#0e1117"
     text_color = "#FFFFFF"
-    user_msg_bg = "#1e1e24"
-    border_color = "#333"
+    user_bubble = "#1e1e24"
+    border_color = "#2d2d33"
+    input_bg = "#262730"
 else:
-    bg_color = "#FFFFFF"
+    main_bg = "#FFFFFF"
     text_color = "#1F1F1F"
-    user_msg_bg = "#F7F7F8"
+    user_bubble = "#F0F2F6"
     border_color = "#E5E5E5"
+    input_bg = "#FFFFFF"
 
 st.markdown(f"""
     <style>
-    /* Üst menüleri gizle */
+    /* Üst menü, GitHub ve Footer gizleme */
     header, #MainMenu, footer {{visibility: hidden;}}
-
-    /* Amblemleri/İkonları tamamen kaldır */
+    
+    /* AVATARLARI TAMAMEN KALDIR (Robot ve İnsan) */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
     }}
-
-    /* Mesaj alanlarını genişlet ve hizala */
+    
+    /* Mesaj alanını sola yasla ve ikon boşluğunu kapat */
     [data-testid="stChatMessage"] {{
-        background-color: transparent;
-        padding: 10px 0px 20px 0px;
-        border-bottom: 1px solid {border_color};
-        margin-bottom: 10px;
+        padding-left: 0px !important;
+        background-color: transparent !important;
+        margin-bottom: 1.5rem;
     }}
 
-    /* Kullanıcı sorusunu hafif vurgula */
-    [data-testid="stChatMessageUser"] {{
-        background-color: {user_msg_bg};
-        padding: 20px;
-        border-radius: 12px;
-        border: none;
+    /* Kullanıcı mesaj kutusu - Modern & Sade */
+    [data-testid="stChatMessageUser"] > div {{
+        background-color: {user_bubble} !important;
+        color: {text_color} !important;
+        padding: 18px 25px !important;
+        border-radius: 15px !important;
+        border: 1px solid {border_color};
     }}
 
-    /* Genel Font ve Renkler */
+    /* Asistan mesajı (Düz metin akışı) */
+    [data-testid="stChatMessageAssistant"] > div {{
+        color: {text_color} !important;
+        padding: 10px 0px !important;
+    }}
+
+    /* Genel Tipografi ve Arka Plan */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    html, body, [data-testid="stAppViewContainer"] {{
-        background-color: {bg_color};
-        color: {text_color};
-        font-family: 'Inter', sans-serif;
+    .stApp {{
+        background-color: {main_bg};
     }}
     
+    p, span, div, h1 {{
+        font-family: 'Inter', sans-serif !important;
+        color: {text_color} !important;
+    }}
+
     .main-title {{
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 600;
-        margin-bottom: 1.5rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid {border_color};
+        padding-bottom: 15px;
     }}
     </style>
     """, unsafe_allow_html=True)
-
 # --- GÜVENLİK ---
 # (Buradaki API yapılandırman olduğu gibi kalabilir)
 try:
