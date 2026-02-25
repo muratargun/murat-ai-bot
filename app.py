@@ -1,5 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
+import os
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
@@ -14,16 +15,25 @@ if "quick_prompt" not in st.session_state:
 col1, col2, col3 = st.columns([0.65, 0.20, 0.15])
 
 with col2:
-    # BURASI ÖNEMLİ: Kendi CV PDF'ini projene yükleyip adını buraya yazmalısın.
-    # Şimdilik hata vermemesi için boş bir byte verisi oluşturuyoruz.
-    dummy_cv_data = b"Bu ornek bir CV dosyasidir. Lutfen kendi PDF dosyanizi koda ekleyin."
-    st.download_button(
-        label="📄 CV'mi İndir",
-        data=dummy_cv_data,
-        file_name="Murat_Argun_CV.pdf",
-        mime="application/pdf",
-        use_container_width=True
-    )
+    # GERÇEK CV İNDİRME BAĞLANTISI
+    try:
+        with open("Murat_Argun_CV.pdf", "rb") as pdf_file:
+            cv_byte = pdf_file.read()
+        st.download_button(
+            label="📄 CV'mi İndir",
+            data=cv_byte,
+            file_name="Murat_Argun_CV.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+    except FileNotFoundError:
+        # Eğer PDF dosyası GitHub'a henüz yüklenmediyse geçici bir hata dosyası verir.
+        st.download_button(
+            label="📄 CV'mi İndir",
+            data=b"CV dosyasi bulunamadi. Lutfen GitHub deposuna 'Murat_Argun_CV.pdf' dosyasini yukleyin.",
+            file_name="hata_raporu.txt",
+            use_container_width=True
+        )
 
 with col3:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
@@ -243,31 +253,30 @@ for message in st.session_state.messages:
         div_class = "msg-user" if message["role"] == "user" else "msg-assistant"
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
-# --- HIZLI SORU BUTONLARI (Sadece ilk girişte görünür) ---
+# --- GÜNCELLENMİŞ HIZLI SORU BUTONLARI ---
 if len(st.session_state.messages) == 1:
-    st.markdown(f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>💡 <b>Hızlı Sorular:</b> İK uzmanları genelde şunları soruyor:</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>💡 <b>Hızlı Sorular:</b> Aşağıdaki konuları seçerek sohbete başlayabilirsiniz:</div>", unsafe_allow_html=True)
     
     q_col1, q_col2, q_col3 = st.columns(3)
     with q_col1:
-        if st.button("Marka & Pazarlama Stajı?", use_container_width=True):
-            st.session_state.quick_prompt = "Murat'ın marka yönetimi ve dijital pazarlama vizyonundan bahseder misin?"
+        if st.button("Murat Argun Kimdir?", use_container_width=True):
+            st.session_state.quick_prompt = "Murat Argun kimdir? Kısaca vizyonundan ve yetkinliklerinden bahseder misin?"
             st.rerun()
     with q_col2:
-        if st.button("Eti Bitirme Projesi", use_container_width=True):
-            st.session_state.quick_prompt = "Murat'ın Eti'deki operasyonel planlama ve otomasyon projesinin detayları neler?"
+        if st.button("Projeler ve Stajlar", use_container_width=True):
+            st.session_state.quick_prompt = "Murat'ın yaptığı projeler ve staj deneyimleri (Bosch, Eti vb.) nelerdir?"
             st.rerun()
     with q_col3:
-        if st.button("Neden işe almalıyım?", use_container_width=True):
-            st.session_state.quick_prompt = "Bir İK profesyoneli olarak Murat'ı neden değerlendirmeliyim? En güçlü yönleri neler?"
+        if st.button("Akademik Hayatı", use_container_width=True):
+            st.session_state.quick_prompt = "Murat'ın akademik hayatı ve ODTÜ'deki eğitimi hakkında bilgi verir misin?"
             st.rerun()
 
 # --- INPUT VE MODEL ÇALIŞTIRMA ---
-# Hem manuel input hem de butondan gelen hızlı soruları yakalar
 prompt = st.chat_input("Mesajınızı yazın...")
 
 if st.session_state.quick_prompt:
     prompt = st.session_state.quick_prompt
-    st.session_state.quick_prompt = None # Tek seferlik kullanıp sıfırla
+    st.session_state.quick_prompt = None 
 
 if prompt:
     # 1. Kullanıcı mesajını anında ekranda göster
@@ -299,4 +308,4 @@ if prompt:
         # 4. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
-        st.rerun() # Yeni soru sorulduktan sonra hızlı soru butonlarını anında gizlemek için
+        st.rerun()
