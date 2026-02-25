@@ -280,20 +280,25 @@ if prompt:
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
-                # Modelleri 'models/' ön ekiyle çağırıyoruz ki eski SDK versiyonları hata vermesin.
+                # Önce 1.5-flash deniyoruz
                 model = genai.GenerativeModel('models/gemini-1.5-flash', system_instruction=PERSONAL_INFO)
                 chat = model.start_chat(history=formatted_history)
                 response = chat.send_message(prompt)
                 resp_text = response.text
             except Exception as e:
                 try:
+                    # Yedeğe (2.0-flash) geçiyoruz
                     model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
                     chat = model.start_chat(history=formatted_history)
                     response = chat.send_message(prompt)
                     resp_text = response.text
                 except Exception as e2:
-                    # HATA GİZLEMİYORUZ: Ekranda API'nin ne sorunu olduğunu direkt göreceğiz.
-                    resp_text = f"Google API Hatası: {str(e2)} Lütfen bana bu hatanın görüntüsünü at."
+                    error_msg = str(e2)
+                    # EĞER HATA KOTA HATASIYSA (429) İK'CIYA KİBARCA BEKLEMESİNİ SÖYLE:
+                    if "429" in error_msg or "Quota" in error_msg:
+                        resp_text = "Şu an sistemimde yoğunluk var (Google API Kota Limiti). Lütfen yaklaşık 30 saniye bekleyip sorunuzu tekrar sorun."
+                    else:
+                        resp_text = "Geçici bir bağlantı sorunu oluştu. Lütfen sayfayı yenileyip tekrar deneyin."
         
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
