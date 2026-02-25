@@ -22,6 +22,7 @@ if st.session_state.theme == "Dark":
     border_color = "#333333"
     input_bg = "#1e1e24"
     select_bg = "#1e1e24"
+    title_color = "#FFFFFF" # Dark modda başlık rengi
 else:
     main_bg = "#F9FAFB"
     text_color = "#111827"
@@ -30,11 +31,55 @@ else:
     border_color = "#D1D5DB"
     input_bg = "#FFFFFF"
     select_bg = "#374151"
+    title_color = "#111827" # Light modda başlık rengi
 
-# --- CSS: WHATSAPP TARZI KARTLAR VE GÖRÜNÜM ---
+# --- CSS: YENİ BAŞLIK VE PROFESYONEL DOKUNUŞLAR ---
 st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
+
+    /* Yeni Profesyonel Sol Üst Başlık */
+    .new-pro-title {{
+        position: fixed; /* Sayfada sabit durur, kaymaz */
+        top: 20px;
+        left: 25px;
+        z-index: 999; /* Diğer öğelerin üstünde görünmesini sağlar */
+    }}
+    
+    /* Başlığın içindeki "Murat Argun" kısmı (Koyu/Belirgin) */
+    .title-name {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1.2rem; /* Mobilde daha küçük olacak */
+        font-weight: 700;
+        color: {title_color};
+        margin: 0;
+        letter-spacing: -0.02em;
+    }}
+
+    /* Başlığın içindeki "Dijital Asistan" kısmı (Hafif/Sade) */
+    .title-role {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        color: {title_color};
+        opacity: 0.7; /* Biraz daha soluk */
+        margin: 0;
+        margin-top: 2px;
+    }}
+
+    /* Mobil uyumluluk için medya sorgusu */
+    @media (max-width: 600px) {{
+        .new-pro-title {{
+            top: 15px;
+            left: 15px;
+        }}
+        .title-name {{
+            font-size: 1rem; /* Mobilde daha küçük */
+        }}
+        .title-role {{
+            font-size: 0.85rem; /* Mobilde daha küçük */
+        }}
+    }}
 
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
@@ -99,20 +144,16 @@ st.markdown(f"""
         border: 1px solid {border_color} !important;
     }}
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     p, span, h1, textarea {{
         font-family: 'Inter', sans-serif !important;
         color: {text_color} !important;
         line-height: 1.6;
     }}
 
+    /* Eski büyük başlığı gizle */
     .main-title {{
-        font-size: 2rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 2rem;
-        border-bottom: 1px solid {border_color};
-        padding-bottom: 15px;
+        display: none !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -189,7 +230,13 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
 # Görünmez piksel
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
-st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
+# --- YENİ SOL ÜST BAŞLIK ---
+st.markdown(f"""
+    <div class="new-pro-title">
+        <h2 class="title-name">Murat Argun</h2>
+        <p class="title-role">Dijital Asistan</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- CHAT MANTIĞI VE ARAYÜZ ---
 if "messages" not in st.session_state:
