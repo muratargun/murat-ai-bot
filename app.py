@@ -27,22 +27,26 @@ else:
     border_color = "#E5E5E5"
     input_bg = "#F7F7F8"
 
-# --- CSS: KUSURSUZ GÖRÜNÜM (Siyah Şerit ve Boşluk Düzeltmeleri) ---
+# --- CSS: SADELEŞTİRME VE HATA ÇÖZÜMLERİ ---
 st.markdown(f"""
     <style>
     /* Üst menü, GitHub ve Footer gizleme */
     header, #MainMenu, footer {{visibility: hidden;}}
     
-    /* İkonlar için ayrılan alanı tamamen sıfırla */
+    /* AVATARLARI VE İÇİNDEKİ YAZILARI KESİNLİKLE GİZLE */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
-        width: 0 !important;
-        height: 0 !important;
+        width: 0px !important;
         margin: 0 !important;
-        padding: 0 !important;
     }}
     
-    /* Mesajların yanındaki boşluğu kapat ve tam sola yasla */
+    [data-testid="stChatMessageAvatarContainer"] * {{
+        display: none !important;
+        color: transparent !important;
+        font-size: 0px !important;
+    }}
+    
+    /* Mesajların yanındaki boşluğu kapat */
     [data-testid="stChatMessage"] {{
         gap: 0 !important;
         padding-left: 0px !important;
@@ -50,7 +54,7 @@ st.markdown(f"""
         margin-bottom: 1.5rem;
     }}
 
-    /* KULLANICI MESAJI */
+    /* KULLANICI MESAJI SİTİLİ */
     [data-testid="stChatMessageUser"] > div {{
         background-color: {user_bubble} !important;
         color: {text_color} !important;
@@ -59,7 +63,7 @@ st.markdown(f"""
         border: 1px solid {border_color};
     }}
 
-    /* ASİSTAN MESAJI (Düz metin) */
+    /* ASİSTAN MESAJI SİTİLİ */
     [data-testid="stChatMessageAssistant"] > div {{
         color: {text_color} !important;
         padding: 10px 0px !important;
@@ -70,19 +74,18 @@ st.markdown(f"""
         background-color: {main_bg};
     }}
 
-    /* ALTTAKİ SİYAH ŞERİT SORUNUNU ÇÖZEN KISIM */
+    /* LIGHT MODDAKİ SİYAH ŞERİT SORUNUNU ÇÖZER */
     [data-testid="stBottom"], 
     [data-testid="stBottom"] > div {{
         background-color: {main_bg} !important;
     }}
 
-    /* Chat input (mesaj yazma) alanının renkleri */
     [data-testid="stChatInput"] {{
         background-color: {input_bg} !important;
         border: 1px solid {border_color} !important;
     }}
 
-    /* Tipografi */
+    /* TİPOGRAFİ */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     p, span, div, h1, textarea {{
         font-family: 'Inter', sans-serif !important;
@@ -99,13 +102,13 @@ st.markdown(f"""
     }}
     </style>
     """, unsafe_allow_html=True)
-# --- GÜVENLİK ---
-# (Buradaki API yapılandırman olduğu gibi kalabilir)
+
+# --- MODEL KONFİGÜRASYONU ---
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
-except Exception:
-    st.error("API Anahtarı bulunamadı!")
+except:
+    st.error("API Anahtarı eksik!")
     st.stop()
 # --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
 PERSONAL_INFO = """
