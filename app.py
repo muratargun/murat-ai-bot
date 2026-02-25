@@ -8,78 +8,84 @@ st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="center
 if "theme" not in st.session_state:
     st.session_state.theme = "Dark"
 
-col1, col2 = st.columns([0.8, 0.2])
+col1, col2 = st.columns([0.85, 0.15])
 with col2:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
 
-# --- RENK PALETLERİ ---
+# --- RENK PALETLERİ VE KART TASARIMLARI ---
 if st.session_state.theme == "Dark":
     main_bg = "#0e1117"
     text_color = "#FFFFFF"
-    user_bubble = "#1e1e24"
+    user_bubble = "#262730"
+    asst_bubble = "#1a1c23" # Havada uçmaması için asistan kutusuna hafif bir koyuluk
     border_color = "#2d2d33"
     input_bg = "#1e1e24"
+    select_bg = "#1e1e24"
 else:
-    main_bg = "#FFFFFF"
-    text_color = "#1F1F1F"
-    user_bubble = "#F7F7F8"
-    border_color = "#E5E5E5"
-    input_bg = "#F7F7F8"
+    main_bg = "#F9FAFB" # Çok hafif kirli beyaz arka plan (göz yormaması için)
+    text_color = "#111827"
+    user_bubble = "#E5E7EB"
+    asst_bubble = "#FFFFFF" # Asistan kartı bembeyaz ve belirgin olacak
+    border_color = "#D1D5DB"
+    input_bg = "#FFFFFF"
+    select_bg = "#374151" # Light modda da üstteki dropdown koyu kalsın
 
-# --- CSS: SADELEŞTİRME VE HATA ÇÖZÜMLERİ ---
+# --- CSS: SADELEŞTİRME VE DÜZENLEMELER ---
 st.markdown(f"""
     <style>
-    /* Üst menü, GitHub ve Footer gizleme */
     header, #MainMenu, footer {{visibility: hidden;}}
-    
-    /* AVATARLARI VE İÇİNDEKİ YAZILARI KESİNLİKLE GİZLE */
+
+    /* Dropdown (Görünüm Seçici) yazısını beyaz yapma */
+    div[data-baseweb="select"] > div {{
+        background-color: {select_bg} !important;
+        color: #FFFFFF !important; 
+        border: none !important;
+    }}
+    li[role="option"] {{
+        color: #FFFFFF !important;
+    }}
+
+    /* AVATARLARI KESİNLİKLE GİZLE */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
-        width: 0px !important;
-        margin: 0 !important;
+        width: 0 !important;
     }}
-    
-    [data-testid="stChatMessageAvatarContainer"] * {{
-        display: none !important;
-        color: transparent !important;
-        font-size: 0px !important;
-    }}
-    
-    /* Mesajların yanındaki boşluğu kapat */
+
+    /* MESAJ KAPSAYICISI */
     [data-testid="stChatMessage"] {{
         gap: 0 !important;
-        padding-left: 0px !important;
+        padding: 0 !important;
         background-color: transparent !important;
         margin-bottom: 1.5rem;
     }}
 
-    /* KULLANICI MESAJI SİTİLİ */
+    /* KULLANICI MESAJI - Modern Chat Bubble */
     [data-testid="stChatMessageUser"] > div {{
         background-color: {user_bubble} !important;
-        color: {text_color} !important;
-        padding: 18px 25px !important;
-        border-radius: 12px !important;
+        padding: 15px 20px !important;
+        border-radius: 12px 12px 0px 12px !important; /* Sağ alt köşe sivri */
         border: 1px solid {border_color};
+        margin-left: 15%; /* Sağa yaslı durmasını sağlar */
     }}
 
-    /* ASİSTAN MESAJI SİTİLİ */
+    /* ASİSTAN MESAJI - Belirgin Kart Görünümü */
     [data-testid="stChatMessageAssistant"] > div {{
-        color: {text_color} !important;
-        padding: 10px 0px !important;
+        background-color: {asst_bubble} !important;
+        padding: 20px 25px !important;
+        border-radius: 12px 12px 12px 0px !important; /* Sol alt köşe sivri */
+        border: 1px solid {border_color};
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Havada durmaması için hafif bir gölge */
+        margin-right: 15%; /* Sola yaslı durmasını sağlar */
     }}
 
-    /* ANA ARKA PLAN */
+    /* ARKA PLAN VE ALT ŞERİT */
     .stApp, [data-testid="stAppViewContainer"] {{
         background-color: {main_bg};
     }}
-
-    /* LIGHT MODDAKİ SİYAH ŞERİT SORUNUNU ÇÖZER */
-    [data-testid="stBottom"], 
-    [data-testid="stBottom"] > div {{
+    [data-testid="stBottom"], [data-testid="stBottom"] > div {{
         background-color: {main_bg} !important;
     }}
-
     [data-testid="stChatInput"] {{
         background-color: {input_bg} !important;
         border: 1px solid {border_color} !important;
@@ -87,17 +93,18 @@ st.markdown(f"""
 
     /* TİPOGRAFİ */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    p, span, div, h1, textarea {{
+    p, span, h1, textarea {{
         font-family: 'Inter', sans-serif !important;
         color: {text_color} !important;
+        line-height: 1.6;
     }}
 
     .main-title {{
-        font-size: 1.8rem;
-        font-weight: 600;
+        font-size: 2rem;
+        font-weight: 700;
         letter-spacing: -0.02em;
         margin-bottom: 2rem;
-        border-bottom: 1px solid {border_color};
+        border-bottom: 2px solid {border_color};
         padding-bottom: 15px;
     }}
     </style>
@@ -172,40 +179,36 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
-# Sistemi Talimatı Değişkeni (Bunu kendi uzun metninle değiştirebilirsin)
-PERSONAL_INFO = "Sen Murat Argun'un dijital asistanısın..."
+# Görünmez piksel (Smart Toy yazısını engellemek için)
+EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
-# Başlığı modern bir class ile yazdırıyoruz
+# Başlık
 st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
 
-# --- CHAT MANTIĞI (Senin Sağlam Kodun) ---
+# --- CHAT MANTIĞI ---
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    with st.chat_message(message["role"], avatar=EMPTY_AVATAR):
         st.markdown(message["content"])
 
 if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar=EMPTY_AVATAR):
         st.markdown(prompt)
 
     try:
-        # FİNAL ÇÖZÜM: Senin listendeki 16. sıradaki "latest" model.
-        # Bu model her zaman en güncel ve çalışan Flash sürümüne yönlendirir.
         model = genai.GenerativeModel('models/gemini-flash-latest', system_instruction=PERSONAL_INFO)
-
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar=EMPTY_AVATAR):
             response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
 
     except Exception as e:
-        # Eğer "latest" hata verirse, listedeki 3. sıradaki "2.0-flash" modelini dener.
         try:
             model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant", avatar=EMPTY_AVATAR):
                 response = model.generate_content(prompt)
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
