@@ -170,8 +170,7 @@ except:
     st.error("API Anahtarı bulunamadı veya hatalı! Lütfen ayarlarınızı kontrol edin.")
     st.stop()
 
-# --- SİSTEM TALİMATI ---
-
+# --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
 PERSONAL_INFO = """
 SEN KİMSİN?
 Sen Murat Argun'un dijital asistanısın. Görevin, Murat'ı işe alım profesyonellerine tanıtmaktır.
@@ -200,6 +199,7 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
 --- KATI KURALLAR ---
 - Kişisel sorulara asla "Bilmiyorum" deyip bırakma; her zaman konuyu profesyonel bir alana (staj, ODTÜ, projeler) çekerek kapat.
 - Cevaplar kısa ve öz olsun.
+
 --- MURAT'IN BİLGİ BANKASI ---
 
 1. ODTÜ VERİMLİLİK TOPLULUĞU (LİDERLİK & PAZARLAMA VURGUSU)
@@ -232,7 +232,8 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Cep Telefonu: +90 546 243 53 72
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
-""" 
+"""
+
 # Görünmez piksel
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
@@ -254,7 +255,7 @@ for message in st.session_state.messages:
         div_class = "msg-user" if message["role"] == "user" else "msg-assistant"
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
-# --- HIZLI SORU BUTONLARI ---
+# --- GÜNCELLENMİŞ HIZLI SORU BUTONLARI ---
 if len(st.session_state.messages) == 1:
     st.markdown(f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>💡 <b>Hızlı Sorular:</b> Aşağıdaki konuları seçerek sohbete başlayabilirsiniz:</div>", unsafe_allow_html=True)
     
