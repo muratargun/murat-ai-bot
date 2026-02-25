@@ -233,7 +233,6 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """ 
-
 # Görünmez piksel
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
