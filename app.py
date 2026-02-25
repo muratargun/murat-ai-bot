@@ -1,6 +1,62 @@
 import streamlit as st
 import google.generativeai as genai
 
+# --- SAYFA AYARLARI ---
+st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
+
+# --- CUSTOM CSS (Modern & Sade Görünüm) ---
+st.markdown("""
+    <style>
+    /* Ana arka plan ve font iyileştirmesi */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    html, body, [class*="css"]  {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Başlık Stilini Özelleştirme */
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-align: left;
+        margin-bottom: 1rem;
+        letter-spacing: -0.05rem;
+    }
+
+    /* Chat Baloncukları Özelleştirme */
+    [data-testid="stChatMessage"] {
+        background-color: #1e1e24; /* Çok hafif gri-mavi */
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #2d2d33;
+    }
+
+    /* Kullanıcı Mesajı Farklılaştırma */
+    [data-testid="stChatMessageUser"] {
+        background-color: #262730;
+        border: 1px solid #3e3e42;
+    }
+
+    /* Avatar ve İkon Düzenleme */
+    [data-testid="stChatMessageContent"] p {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* Üst boşluğu azaltma */
+    .block-container {
+        padding-top: 3rem;
+    }
+
+    /* Chat input barını daha temiz yapma */
+    .stChatInputContainer {
+        border-radius: 12px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- GÜVENLİK ---
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -59,8 +115,10 @@ Bu sorularda şu 3 adımı izle:
    * Araçlar: Python, Microsoft Word, Microsoft Excel, MS Power Platforms, Adobe Creative Cloud, Google Ads, Siemens NX11.
    * Diller: İngilizce (İleri), Çince (Başlangıç).
 """
-st.set_page_config(page_title="Murat Argun AI", page_icon="🎓")
-st.title("🎓 Murat Argun - Dijital Asistan")
+# Başlığı modern bir class ile yazdırıyoruz
+st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
+
+# --- CHAT MANTIĞI ---
 
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
