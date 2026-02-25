@@ -15,7 +15,6 @@ if "quick_prompt" not in st.session_state:
 col1, col2, col3 = st.columns([0.65, 0.20, 0.15])
 
 with col2:
-    # GERÇEK CV İNDİRME BAĞLANTISI
     try:
         with open("Murat Argun Resume.pdf", "rb") as pdf_file:
             cv_byte = pdf_file.read()
@@ -63,7 +62,6 @@ st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
 
-    /* Sol Üst Başlık */
     .new-pro-title {{
         position: fixed; 
         top: 20px;
@@ -94,7 +92,6 @@ st.markdown(f"""
         .title-role {{font-size: 0.85rem;}}
     }}
 
-    /* Buton ve Dropdown Düzenlemeleri */
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
         color: #FFFFFF !important; 
@@ -102,7 +99,6 @@ st.markdown(f"""
     }}
     li[role="option"] {{ color: #FFFFFF !important; }}
 
-    /* Streamlit varsayılan avatarları tamamen gizle */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
         width: 0 !important;
@@ -116,7 +112,6 @@ st.markdown(f"""
         margin-bottom: 15px !important;
     }}
 
-    /* Mesaj Balonları */
     .msg-user {{
         background-color: {user_bubble};
         color: {text_color};
@@ -143,7 +138,6 @@ st.markdown(f"""
     }}
     .msg-user p, .msg-assistant p {{ margin-bottom: 0 !important; }}
 
-    /* Arka Plan */
     .stApp, [data-testid="stAppViewContainer"] {{ background-color: {main_bg}; }}
     [data-testid="stBottom"], [data-testid="stBottom"] > div {{ background-color: {main_bg} !important; }}
     [data-testid="stChatInput"] {{
@@ -151,7 +145,6 @@ st.markdown(f"""
         border: 1px solid {border_color} !important;
     }}
 
-    /* Tipografi */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     p, span, h1, textarea {{
         font-family: 'Inter', sans-serif !important;
@@ -170,39 +163,32 @@ except:
     st.error("API Anahtarı bulunamadı veya hatalı! Lütfen ayarlarınızı kontrol edin.")
     st.stop()
 
-# --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
+# --- SİSTEM TALİMATI ---
 PERSONAL_INFO = """
 SEN KİMSİN?
 Sen Murat Argun'un dijital asistanısın. Görevin, Murat'ı işe alım profesyonellerine tanıtmaktır.
 Murat'ı tek boyutlu bir mühendis olarak değil; analitik zekasını sosyal becerileri, tasarım yeteneği ve stratejik bakış açısıyla birleştiren "çok yönlü" bir aday olarak konumlandırmalısın.
 
 --- KATI KURALLAR & FORMAT ---
-1. FORMAT: Asla HTML etiketi (blockquote, br, vb.) kullanma. Sadece düz metin.
+1. FORMAT: Asla HTML etiketi kullanma. Sadece düz metin.
 2. PERSPEKTİF: Asla "ben" deme. Her zaman "Murat", "O" veya "Kendisi" de.
 3. ÜSLUP: Profesyonel, saygılı ama samimi.
 
 --- CEVAPLAMA STRATEJİLERİ ---
-
 DURUM 1: GENEL TANIŞMA ("Murat kimdir?")
 Şu kalıbı kullan: "Murat, ODTÜ'de 4. sınıf Endüstri Mühendisliği okuyor. Ankara'da yaşıyor. Eğitim hayatında WAT programı, projeler ve öğrenci topluluklarında aktif rol alarak kendini geliştirmiştir. Mühendislik formasyonunu; yaratıcı süreçler ve insan ilişkileriyle birleştirerek hem teknik hem de sosyal yönü güçlü bir profil çizer."
 
-DURUM 2: DAVRANIŞSAL SORULAR (Liderlik, İnisiyatif, Zorluk) - *BURASI ÇOK ÖNEMLİ*
-Bu sorularda şu 3 adımı izle:
+DURUM 2: DAVRANIŞSAL SORULAR (Liderlik, İnisiyatif, Zorluk)
 1. ANA ÖRNEK: En güçlü örneği (Liderlik konusunda ODTÜ VT, zorluk konusunda WAT tecrübeleri, aldığı inisiyatifler ve yaptığı projeler konusunda BOSCH stajı ve ETİ Bitirme projelerinden bahset) özetle anlat.
 2. YAN SİNYAL: "Bunun dışında diğer işlerinde de benzer sorumluluklar almıştır" diyerek diğer tecrübesine kısaca değin.
-3. PAS ATMA (CALL TO ACTION): Detayları vermeden önce merak uyandır ve cevabı her zaman kendısıne ulaşarak deneyimlerini öğrenebilirsiniz de. "Bu süreçteki karar alma mekanizmasını ve hislerini, doğrudan kendisinden dinlemeniz, potansiyelini görmeniz açısından en doğrusu olacaktır" diyerek topu Murat'a at.
+3. PAS ATMA (CALL TO ACTION): "Bu süreçteki karar alma mekanizmasını ve hislerini, doğrudan kendisinden dinlemeniz, potansiyelini görmeniz açısından en doğrusu olacaktır" diyerek topu Murat'a at.
 
 DURUM 3: KAPSAM DIŞI / KİŞİSEL SORULAR
-Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değilse (örneğin: en sevdiği yemek, tuttuğu takım vb.), doğrudan şu yanıtı ver:
-"Bu asistan Murat'ın profesyonel portföyüne odaklandığı için sorduğunuz kişisel detaya dair bir bilgi sistemimde yer almıyor. Yine de kendisinin akademik başarıları, Bosch ve Eti projeleri veya pazarlama yetkinlikleri üzerine sorularınızı yanıtlamaktan memnuniyet duyarım. Murat'ın kariyer yolculuğuyla ilgili başka ne bilmek istersiniz?"
-
---- KATI KURALLAR ---
-- Kişisel sorulara asla "Bilmiyorum" deyip bırakma; her zaman konuyu profesyonel bir alana (staj, ODTÜ, projeler) çekerek kapat.
-- Cevaplar kısa ve öz olsun.
+Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değilse, doğrudan şu yanıtı ver:
+"Bu asistan Murat'ın profesyonel portföyüne odaklandığı için sorduğunuz kişisel detaya dair bir bilgi sistemimde yer almıyor. Yine de kendisinin akademik başarıları, Bosch ve Eti projeleri veya pazarlama yetkinlikleri üzerine sorularınızı yanıtlamaktan memnuniyet duyarım."
 
 --- MURAT'IN BİLGİ BANKASI ---
-
-1. ODTÜ VERİMLİLİK TOPLULUĞU (LİDERLİK & PAZARLAMA VURGUSU)
+1. ODTÜ VERİMLİLİK TOPLULUĞU (LİDERLİK & PAZARLAMA)
    * Dizayn Komitesi Koordinatörü olarak 20 kişilik ekibi yönetti.
    * Adobe Photoshop/Illustrator ile markanın görsel kimliğini ve dijital pazarlama stratejilerini oluşturdu.
    * WEQUAL projesinde sunuculuk yaparak kriz yönetimi ve topluluk önünde konuşma becerilerini sergiledi.
@@ -234,7 +220,6 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
 
-# Görünmez piksel
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
 # --- YENİ SOL ÜST BAŞLIK ---
@@ -249,13 +234,12 @@ st.markdown(f"""
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyer, staj deneyimleri veya teknik yetkinlikler hakkında ne bilmek istersiniz?"}]
 
-# Geçmiş mesajları ekrana basma
 for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=EMPTY_AVATAR):
         div_class = "msg-user" if message["role"] == "user" else "msg-assistant"
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
-# --- GÜNCELLENMİŞ HIZLI SORU BUTONLARI ---
+# --- HIZLI SORU BUTONLARI ---
 if len(st.session_state.messages) == 1:
     st.markdown(f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>💡 <b>Hızlı Sorular:</b> Aşağıdaki konuları seçerek sohbete başlayabilirsiniz:</div>", unsafe_allow_html=True)
     
@@ -273,7 +257,6 @@ if len(st.session_state.messages) == 1:
             st.session_state.quick_prompt = "Murat'ın akademik hayatı ve ODTÜ'deki eğitimi hakkında bilgi verir misin?"
             st.rerun()
 
-# --- INPUT VE MODEL ÇALIŞTIRMA ---
 prompt = st.chat_input("Mesajınızı yazın...")
 
 if st.session_state.quick_prompt:
@@ -281,37 +264,37 @@ if st.session_state.quick_prompt:
     st.session_state.quick_prompt = None 
 
 if prompt:
-    # 1. Kullanıcı mesajını anında ekranda göster
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=EMPTY_AVATAR):
         st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
-    # 2. Bota hafıza ekleme (Geçmiş sohbetleri birleştir)
-    chat_history = []
-    for i, msg in enumerate(st.session_state.messages):
-        # Gemini API kuralı gereği geçmiş her zaman 'user' ile başlamalı.
+    # DÜZELTME: Google'ın resmi start_chat metoduna uygun geçmiş formatlaması.
+    formatted_history = []
+    # Son yazdığımız soruyu (prompt) geçmişe eklemiyoruz, onu ayrıca göndereceğiz.
+    for i, msg in enumerate(st.session_state.messages[:-1]):
         if i == 0 and msg["role"] == "assistant":
             continue
-            
         role = "model" if msg["role"] == "assistant" else "user"
-        chat_history.append({"role": role, "parts": [msg["content"]]})
+        formatted_history.append({"role": role, "parts": [msg["content"]]})
 
-    # 3. Asistanın cevap verme süreci
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
-                model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
-                response = model.generate_content(chat_history)
+                # Modelleri 'models/' ön ekiyle çağırıyoruz ki eski SDK versiyonları hata vermesin.
+                model = genai.GenerativeModel('models/gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+                chat = model.start_chat(history=formatted_history)
+                response = chat.send_message(prompt)
                 resp_text = response.text
             except Exception as e:
                 try:
-                    model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=PERSONAL_INFO)
-                    response = model.generate_content(chat_history)
+                    model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+                    chat = model.start_chat(history=formatted_history)
+                    response = chat.send_message(prompt)
                     resp_text = response.text
                 except Exception as e2:
-                    resp_text = f"Sistemde geçici bir teknik sorun oluştu, lütfen sayfayı yenileyip tekrar deneyin."
+                    # HATA GİZLEMİYORUZ: Ekranda API'nin ne sorunu olduğunu direkt göreceğiz.
+                    resp_text = f"Google API Hatası: {str(e2)} Lütfen bana bu hatanın görüntüsünü at."
         
-        # 4. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
         st.rerun()
