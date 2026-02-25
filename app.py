@@ -96,12 +96,12 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
 
 2. ETİ - BİTİRME PROJESİ (ANALİTİK & OPERASYONEL)
    * Konu: İç Lojistikte Araç ve Rota Planlamasının Otomasyonu.
-   * Detay: Lojistik ağındaki rota verimliliğini maksimize eden algoritmalar geliştiriyor.
+   * Detay: Lojistik ağındaki rota verimliliğini maksimize eden algoritmalar geliştiriyor. 
 
 3. BOSCH TÜRKİYE STAJI (ÜRETİM & PLANLAMA)
    * Büyük ölçekli üretim verilerini analiz edip tedarik zinciri süreçlerini iyileştiren bir algoritma tasarladı.
    * Zaman kısıtı altında bir projeyi tamamlamayı öğrendi.
-   * İş akışı koordinasyonu konusunda kurumsal deneyim kazandı.
+   * İş akışı koordinasyonu konusunda kurumsal deneyim kazandı. Bunun yanında Excel ve Power Platforms uygulamalarını kullanmayı öğrendi.
 
 4. WORK AND TRAVEL - ABD (SATIŞ & İLETİŞİM)
    * Hollywood Pictures bünyesinde fotoğrafçılık ve satış yaptı.
