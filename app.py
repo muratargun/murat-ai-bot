@@ -119,13 +119,7 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # --- MODEL KONFİGÜRASYONU ---
-try:
-    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-    genai.configure(api_key=GEMINI_API_KEY)
-except:
-    st.error("API Anahtarı eksik!")
-    st.stop()
-# --- MODEL KONFİGÜRASYONU ---
+
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
