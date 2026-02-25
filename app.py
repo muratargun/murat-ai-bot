@@ -4,12 +4,28 @@ import google.generativeai as genai
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
 
-# --- TEMA SAKLAMA ---
+# --- TEMA VE HIZLI SORU (STATE) SAKLAMA ---
 if "theme" not in st.session_state:
     st.session_state.theme = "Dark"
+if "quick_prompt" not in st.session_state:
+    st.session_state.quick_prompt = None
 
-col1, col2 = st.columns([0.85, 0.15])
+# --- ÜST BAR (CV İNDİRME VE TEMA SEÇİMİ) ---
+col1, col2, col3 = st.columns([0.65, 0.20, 0.15])
+
 with col2:
+    # BURASI ÖNEMLİ: Kendi CV PDF'ini projene yükleyip adını buraya yazmalısın.
+    # Şimdilik hata vermemesi için boş bir byte verisi oluşturuyoruz.
+    dummy_cv_data = b"Bu ornek bir CV dosyasidir. Lutfen kendi PDF dosyanizi koda ekleyin."
+    st.download_button(
+        label="📄 CV'mi İndir",
+        data=dummy_cv_data,
+        file_name="Murat_Argun_CV.pdf",
+        mime="application/pdf",
+        use_container_width=True
+    )
+
+with col3:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
 
@@ -22,7 +38,7 @@ if st.session_state.theme == "Dark":
     border_color = "#333333"
     input_bg = "#1e1e24"
     select_bg = "#1e1e24"
-    title_color = "#FFFFFF" # Dark modda başlık rengi
+    title_color = "#FFFFFF"
 else:
     main_bg = "#F9FAFB"
     text_color = "#111827"
@@ -31,65 +47,53 @@ else:
     border_color = "#D1D5DB"
     input_bg = "#FFFFFF"
     select_bg = "#374151"
-    title_color = "#111827" # Light modda başlık rengi
+    title_color = "#111827"
 
-# --- CSS: YENİ BAŞLIK VE PROFESYONEL DOKUNUŞLAR ---
+# --- CSS: TASARIM, BAŞLIK VE BUTONLAR ---
 st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
 
-    /* Yeni Profesyonel Sol Üst Başlık */
+    /* Sol Üst Başlık */
     .new-pro-title {{
-        position: fixed; /* Sayfada sabit durur, kaymaz */
+        position: fixed; 
         top: 20px;
         left: 25px;
-        z-index: 999; /* Diğer öğelerin üstünde görünmesini sağlar */
+        z-index: 999; 
     }}
-    
-    /* Başlığın içindeki "Murat Argun" kısmı (Koyu/Belirgin) */
     .title-name {{
         font-family: 'Inter', sans-serif;
-        font-size: 1.2rem; /* Mobilde daha küçük olacak */
+        font-size: 1.2rem; 
         font-weight: 700;
         color: {title_color};
         margin: 0;
         letter-spacing: -0.02em;
     }}
-
-    /* Başlığın içindeki "Dijital Asistan" kısmı (Hafif/Sade) */
     .title-role {{
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
         font-weight: 400;
         color: {title_color};
-        opacity: 0.7; /* Biraz daha soluk */
+        opacity: 0.7; 
         margin: 0;
         margin-top: 2px;
     }}
 
-    /* Mobil uyumluluk için medya sorgusu */
     @media (max-width: 600px) {{
-        .new-pro-title {{
-            top: 15px;
-            left: 15px;
-        }}
-        .title-name {{
-            font-size: 1rem; /* Mobilde daha küçük */
-        }}
-        .title-role {{
-            font-size: 0.85rem; /* Mobilde daha küçük */
-        }}
+        .new-pro-title {{top: 15px; left: 15px;}}
+        .title-name {{font-size: 1rem;}}
+        .title-role {{font-size: 0.85rem;}}
     }}
 
+    /* Buton ve Dropdown Düzenlemeleri */
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
         color: #FFFFFF !important; 
         border: none !important;
     }}
-    li[role="option"] {{
-        color: #FFFFFF !important;
-    }}
+    li[role="option"] {{ color: #FFFFFF !important; }}
 
+    /* Streamlit varsayılan avatarları tamamen gizle */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
         width: 0 !important;
@@ -103,6 +107,7 @@ st.markdown(f"""
         margin-bottom: 15px !important;
     }}
 
+    /* Mesaj Balonları */
     .msg-user {{
         background-color: {user_bubble};
         color: {text_color};
@@ -115,7 +120,6 @@ st.markdown(f"""
         max-width: 85%;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
-
     .msg-assistant {{
         background-color: {asst_bubble};
         color: {text_color};
@@ -128,33 +132,24 @@ st.markdown(f"""
         max-width: 85%;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
+    .msg-user p, .msg-assistant p {{ margin-bottom: 0 !important; }}
 
-    .msg-user p, .msg-assistant p {{
-        margin-bottom: 0 !important;
-    }}
-
-    .stApp, [data-testid="stAppViewContainer"] {{
-        background-color: {main_bg};
-    }}
-    [data-testid="stBottom"], [data-testid="stBottom"] > div {{
-        background-color: {main_bg} !important;
-    }}
+    /* Arka Plan */
+    .stApp, [data-testid="stAppViewContainer"] {{ background-color: {main_bg}; }}
+    [data-testid="stBottom"], [data-testid="stBottom"] > div {{ background-color: {main_bg} !important; }}
     [data-testid="stChatInput"] {{
         background-color: {input_bg} !important;
         border: 1px solid {border_color} !important;
     }}
 
+    /* Tipografi */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     p, span, h1, textarea {{
         font-family: 'Inter', sans-serif !important;
         color: {text_color} !important;
         line-height: 1.6;
     }}
-
-    /* Eski büyük başlığı gizle */
-    .main-title {{
-        display: none !important;
-    }}
+    .main-title {{ display: none !important; }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -240,15 +235,41 @@ st.markdown(f"""
 
 # --- CHAT MANTIĞI VE ARAYÜZ ---
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyer, staj deneyimleri veya teknik yetkinlikler hakkında ne bilmek istersiniz?"}]
 
-# Geçmiş mesajları yeni balon yapısıyla ekrana basma
+# Geçmiş mesajları ekrana basma
 for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=EMPTY_AVATAR):
         div_class = "msg-user" if message["role"] == "user" else "msg-assistant"
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
-if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
+# --- HIZLI SORU BUTONLARI (Sadece ilk girişte görünür) ---
+if len(st.session_state.messages) == 1:
+    st.markdown(f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>💡 <b>Hızlı Sorular:</b> İK uzmanları genelde şunları soruyor:</div>", unsafe_allow_html=True)
+    
+    q_col1, q_col2, q_col3 = st.columns(3)
+    with q_col1:
+        if st.button("Marka & Pazarlama Stajı?", use_container_width=True):
+            st.session_state.quick_prompt = "Murat'ın marka yönetimi ve dijital pazarlama vizyonundan bahseder misin?"
+            st.rerun()
+    with q_col2:
+        if st.button("Eti Bitirme Projesi", use_container_width=True):
+            st.session_state.quick_prompt = "Murat'ın Eti'deki operasyonel planlama ve otomasyon projesinin detayları neler?"
+            st.rerun()
+    with q_col3:
+        if st.button("Neden işe almalıyım?", use_container_width=True):
+            st.session_state.quick_prompt = "Bir İK profesyoneli olarak Murat'ı neden değerlendirmeliyim? En güçlü yönleri neler?"
+            st.rerun()
+
+# --- INPUT VE MODEL ÇALIŞTIRMA ---
+# Hem manuel input hem de butondan gelen hızlı soruları yakalar
+prompt = st.chat_input("Mesajınızı yazın...")
+
+if st.session_state.quick_prompt:
+    prompt = st.session_state.quick_prompt
+    st.session_state.quick_prompt = None # Tek seferlik kullanıp sıfırla
+
+if prompt:
     # 1. Kullanıcı mesajını anında ekranda göster
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=EMPTY_AVATAR):
@@ -264,20 +285,18 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
-                # 1.5 Flash modeli en kararlı ve hızlı sürümdür, donmaları engeller.
                 model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
                 response = model.generate_content(chat_history)
                 resp_text = response.text
             except Exception as e:
                 try:
-                    # Alternatif model
                     model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=PERSONAL_INFO)
                     response = model.generate_content(chat_history)
                     resp_text = response.text
                 except Exception as e2:
-                    # Artık donmak yerine sorunun ne olduğunu ekrana yazacak
-                    resp_text = f"Sistemde geçici bir teknik sorun oluştu, lütfen sayfayı yenileyip tekrar deneyin. (Hata Kodu: {str(e2)})"
+                    resp_text = f"Sistemde geçici bir teknik sorun oluştu, lütfen sayfayı yenileyip tekrar deneyin."
         
         # 4. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
+        st.rerun() # Yeni soru sorulduktan sonra hızlı soru butonlarını anında gizlemek için
