@@ -17,12 +17,12 @@ col1, col2, col3 = st.columns([0.65, 0.20, 0.15])
 with col2:
     # GERÇEK CV İNDİRME BAĞLANTISI
     try:
-        with open("Murat_Argun_CV.pdf", "rb") as pdf_file:
+        with open("Murat Argun Resume.pdf", "rb") as pdf_file:
             cv_byte = pdf_file.read()
         st.download_button(
             label="📄 CV'mi İndir",
             data=cv_byte,
-            file_name="Murat_Argun_CV.pdf",
+            file_name="Murat Argun Resume.pdf",
             mime="application/pdf",
             use_container_width=True
         )
@@ -30,11 +30,10 @@ with col2:
         # Eğer PDF dosyası GitHub'a henüz yüklenmediyse geçici bir hata dosyası verir.
         st.download_button(
             label="📄 CV'mi İndir",
-            data=b"CV dosyasi bulunamadi. Lutfen GitHub deposuna 'Murat_Argun_CV.pdf' dosyasini yukleyin.",
+            data=b"CV dosyasi bulunamadi. Lutfen GitHub deposuna 'Murat Argun Resume.pdf' dosyasini yukleyin.",
             file_name="hata_raporu.txt",
             use_container_width=True
         )
-
 with col3:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
