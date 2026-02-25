@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-import time
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
@@ -32,7 +31,7 @@ else:
     input_bg = "#FFFFFF"
     select_bg = "#374151"
 
-# --- CSS: WHATSAPP TARZI KARTLAR VE HATA ÇÖZÜMLERİ ---
+# --- CSS: WHATSAPP TARZI KARTLAR VE GÖRÜNÜM ---
 st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
@@ -119,12 +118,11 @@ st.markdown(f"""
     """, unsafe_allow_html=True)
 
 # --- MODEL KONFİGÜRASYONU ---
-
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
 except:
-    st.error("API Anahtarı eksik!")
+    st.error("API Anahtarı bulunamadı veya hatalı! Lütfen ayarlarınızı kontrol edin.")
     st.stop()
 # --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
 PERSONAL_INFO = """
@@ -188,10 +186,9 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
-# Görünmez piksel (İkonları engellemek için)
+# Görünmez piksel
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
-# Başlık
 st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
 
 # --- CHAT MANTIĞI VE ARAYÜZ ---
@@ -205,26 +202,35 @@ for message in st.session_state.messages:
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
 if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
-    # 1. Kullanıcı mesajını kaydet ve ekranda anında göster
+    # 1. Kullanıcı mesajını anında ekranda göster
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=EMPTY_AVATAR):
         st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
-    # 2. Asistanın cevap verme süreci
+    # 2. Bota hafıza ekleme (Geçmiş sohbetleri birleştir)
+    chat_history = []
+    for msg in st.session_state.messages:
+        role = "model" if msg["role"] == "assistant" else "user"
+        chat_history.append({"role": role, "parts": [msg["content"]]})
+
+    # 3. Asistanın cevap verme süreci
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
-                model = genai.GenerativeModel('models/gemini-flash-latest', system_instruction=PERSONAL_INFO)
-                response = model.generate_content(prompt)
+                # 1.5 Flash modeli en kararlı ve hızlı sürümdür, donmaları engeller.
+                model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+                response = model.generate_content(chat_history)
                 resp_text = response.text
             except Exception as e:
                 try:
-                    model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
-                    response = model.generate_content(prompt)
+                    # Alternatif model
+                    model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+                    response = model.generate_content(chat_history)
                     resp_text = response.text
                 except Exception as e2:
-                    resp_text = "Sistemde bir yoğunluk var, lütfen tekrar deneyin."
+                    # Artık donmak yerine sorunun ne olduğunu ekrana yazacak
+                    resp_text = f"Sistemde geçici bir teknik sorun oluştu, lütfen sayfayı yenileyip tekrar deneyin. (Hata Kodu: {str(e2)})"
         
-        # 3. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
+        # 4. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
