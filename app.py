@@ -284,8 +284,14 @@ if prompt:
         st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
     # 2. Bota hafıza ekleme (Geçmiş sohbetleri birleştir)
+    # 2. Bota hafıza ekleme (Geçmiş sohbetleri birleştir)
     chat_history = []
-    for msg in st.session_state.messages:
+    for i, msg in enumerate(st.session_state.messages):
+        # DÜZELTME: Gemini API kuralı gereği geçmiş her zaman 'user' ile başlamalı.
+        # Bu yüzden botun ilk "Merhaba" mesajını API'ye göndermiyoruz (gizliyoruz).
+        if i == 0 and msg["role"] == "assistant":
+            continue
+            
         role = "model" if msg["role"] == "assistant" else "user"
         chat_history.append({"role": role, "parts": [msg["content"]]})
 
