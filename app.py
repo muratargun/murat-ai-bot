@@ -27,13 +27,13 @@ with col2:
             use_container_width=True
         )
     except FileNotFoundError:
-        # Eğer PDF dosyası GitHub'a henüz yüklenmediyse geçici bir hata dosyası verir.
         st.download_button(
             label="📄 CV'mi İndir",
             data=b"CV dosyasi bulunamadi. Lutfen GitHub deposuna 'Murat Argun Resume.pdf' dosyasini yukleyin.",
             file_name="hata_raporu.txt",
             use_container_width=True
         )
+
 with col3:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
@@ -252,7 +252,7 @@ for message in st.session_state.messages:
         div_class = "msg-user" if message["role"] == "user" else "msg-assistant"
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
-# --- GÜNCELLENMİŞ HIZLI SORU BUTONLARI ---
+# --- HIZLI SORU BUTONLARI ---
 if len(st.session_state.messages) == 1:
     st.markdown(f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>💡 <b>Hızlı Sorular:</b> Aşağıdaki konuları seçerek sohbete başlayabilirsiniz:</div>", unsafe_allow_html=True)
     
@@ -284,11 +284,9 @@ if prompt:
         st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
     # 2. Bota hafıza ekleme (Geçmiş sohbetleri birleştir)
-    # 2. Bota hafıza ekleme (Geçmiş sohbetleri birleştir)
     chat_history = []
     for i, msg in enumerate(st.session_state.messages):
-        # DÜZELTME: Gemini API kuralı gereği geçmiş her zaman 'user' ile başlamalı.
-        # Bu yüzden botun ilk "Merhaba" mesajını API'ye göndermiyoruz (gizliyoruz).
+        # Gemini API kuralı gereği geçmiş her zaman 'user' ile başlamalı.
         if i == 0 and msg["role"] == "assistant":
             continue
             
