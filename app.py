@@ -169,11 +169,13 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
+# Sistemi Talimatı Değişkeni (Bunu kendi uzun metninle değiştirebilirsin)
+PERSONAL_INFO = "Sen Murat Argun'un dijital asistanısın..."
+
 # Başlığı modern bir class ile yazdırıyoruz
 st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
 
-# --- CHAT MANTIĞI ---
-
+# --- CHAT MANTIĞI (Senin Sağlam Kodun) ---
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
 
