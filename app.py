@@ -1,5 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
+import time
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
@@ -13,30 +14,30 @@ with col2:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
 
-# --- RENK PALETLERİ VE KART TASARIMLARI ---
+# --- RENK PALETLERİ VE BALON TASARIMLARI ---
 if st.session_state.theme == "Dark":
     main_bg = "#0e1117"
     text_color = "#FFFFFF"
     user_bubble = "#262730"
-    asst_bubble = "#1a1c23" # Havada uçmaması için asistan kutusuna hafif bir koyuluk
-    border_color = "#2d2d33"
+    asst_bubble = "#1a1c23"
+    border_color = "#333333"
     input_bg = "#1e1e24"
     select_bg = "#1e1e24"
 else:
-    main_bg = "#F9FAFB" # Çok hafif kirli beyaz arka plan (göz yormaması için)
+    main_bg = "#F9FAFB"
     text_color = "#111827"
     user_bubble = "#E5E7EB"
-    asst_bubble = "#FFFFFF" # Asistan kartı bembeyaz ve belirgin olacak
+    asst_bubble = "#FFFFFF"
     border_color = "#D1D5DB"
     input_bg = "#FFFFFF"
-    select_bg = "#374151" # Light modda da üstteki dropdown koyu kalsın
+    select_bg = "#374151"
 
-# --- CSS: SADELEŞTİRME VE DÜZENLEMELER ---
+# --- CSS: WHATSAPP TARZI KARTLAR VE HATA ÇÖZÜMLERİ ---
 st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
 
-    /* Dropdown (Görünüm Seçici) yazısını beyaz yapma */
+    /* Dropdown Menü (Dark/Light Seçici) */
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
         color: #FFFFFF !important; 
@@ -46,37 +47,51 @@ st.markdown(f"""
         color: #FFFFFF !important;
     }}
 
-    /* AVATARLARI KESİNLİKLE GİZLE */
+    /* STREAMLIT'IN KENDİ AVATAR VE BOŞLUKLARINI TAMAMEN SIFIRLA */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
         width: 0 !important;
+        margin: 0 !important;
     }}
-
-    /* MESAJ KAPSAYICISI */
     [data-testid="stChatMessage"] {{
-        gap: 0 !important;
-        padding: 0 !important;
         background-color: transparent !important;
-        margin-bottom: 1.5rem;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        margin-bottom: 15px !important;
     }}
 
-    /* KULLANICI MESAJI - Modern Chat Bubble */
-    [data-testid="stChatMessageUser"] > div {{
-        background-color: {user_bubble} !important;
-        padding: 15px 20px !important;
-        border-radius: 12px 12px 0px 12px !important; /* Sağ alt köşe sivri */
+    /* KULLANICI MESAJ BALONU (Sağa Dayalı) */
+    .msg-user {{
+        background-color: {user_bubble};
+        color: {text_color};
+        padding: 15px 20px;
+        border-radius: 15px 15px 0px 15px; /* Alt sağ köşesi sivri */
         border: 1px solid {border_color};
-        margin-left: 15%; /* Sağa yaslı durmasını sağlar */
+        margin-left: auto; /* Sağa yaslar */
+        margin-right: 0;
+        width: fit-content;
+        max-width: 85%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
 
-    /* ASİSTAN MESAJI - Belirgin Kart Görünümü */
-    [data-testid="stChatMessageAssistant"] > div {{
-        background-color: {asst_bubble} !important;
-        padding: 20px 25px !important;
-        border-radius: 12px 12px 12px 0px !important; /* Sol alt köşe sivri */
+    /* ASİSTAN MESAJ BALONU (Sola Dayalı) */
+    .msg-assistant {{
+        background-color: {asst_bubble};
+        color: {text_color};
+        padding: 15px 20px;
+        border-radius: 15px 15px 15px 0px; /* Alt sol köşesi sivri */
         border: 1px solid {border_color};
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Havada durmaması için hafif bir gölge */
-        margin-right: 15%; /* Sola yaslı durmasını sağlar */
+        margin-left: 0;
+        margin-right: auto; /* Sola yaslar */
+        width: fit-content;
+        max-width: 85%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }}
+
+    /* Balon içi paragraf boşluklarını düzeltme */
+    .msg-user p, .msg-assistant p {{
+        margin-bottom: 0 !important;
     }}
 
     /* ARKA PLAN VE ALT ŞERİT */
@@ -104,7 +119,7 @@ st.markdown(f"""
         font-weight: 700;
         letter-spacing: -0.02em;
         margin-bottom: 2rem;
-        border-bottom: 2px solid {border_color};
+        border-bottom: 1px solid {border_color};
         padding-bottom: 15px;
     }}
     </style>
@@ -179,30 +194,46 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
-# Görünmez piksel (Smart Toy yazısını engellemek için)
+# Görünmez piksel (İkonları engellemek için)
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
 # Başlık
 st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
 
-# --- CHAT MANTIĞI ---
+# --- CHAT MANTIĞI VE ARAYÜZ ---
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
 
+# Geçmiş mesajları yeni balon yapısıyla ekrana basma
 for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=EMPTY_AVATAR):
-        st.markdown(message["content"])
+        div_class = "msg-user" if message["role"] == "user" else "msg-assistant"
+        st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
 if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
+    # 1. Kullanıcı mesajını kaydet ve ekranda anında göster
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=EMPTY_AVATAR):
-        st.markdown(prompt)
+        st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
-    try:
-        model = genai.GenerativeModel('models/gemini-flash-latest', system_instruction=PERSONAL_INFO)
-        with st.chat_message("assistant", avatar=EMPTY_AVATAR):
-            response = model.generate_content(prompt)
-            st.markdown(response.text)
+    # 2. Asistanın cevap verme süreci (Yükleme Ekranı Eklendi)
+    with st.chat_message("assistant", avatar=EMPTY_AVATAR):
+        with st.spinner("Asistan yanıtlıyor..."):
+            try:
+                model = genai.GenerativeModel('models/gemini-flash-latest', system_instruction=PERSONAL_INFO)
+                response = model.generate_content(prompt)
+                resp_text = response.text
+            except Exception as e:
+                try:
+                    model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+                    response = model.generate_content(prompt)
+                    resp_text = response.text
+                except Exception as e2:
+                    resp_text = "Sistemde bir yoğunluk var, lütfen tekrar deneyin."
+        
+        # 3. Yükleme bitince asistan mesajını balon içinde göster
+        st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
+        st.session_state.messages.append({"role": "assistant", "content": resp_text})
             st.session_state.messages.append({"role": "assistant", "content": response.text})
 
     except Exception as e:
