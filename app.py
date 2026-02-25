@@ -5,66 +5,59 @@ import google.generativeai as genai
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
 
 # --- CUSTOM CSS (Modern & Sade Görünüm) ---
+# --- CUSTOM CSS (Üst Menü ve GitHub İkonunu Kaldırma) ---
 st.markdown("""
     <style>
-    /* Ana arka plan ve font iyileştirmesi */
+    /* Üstteki 'Share', 'Star' ve GitHub menüsünü tamamen gizler */
+    header {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Sayfa içeriğinin en tepeye çok yapışmaması için boşluk bırakır */
+    .block-container {
+        padding-top: 2rem;
+    }
+
+    /* Modern Font ve Stil İyileştirmeleri */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     
     html, body, [class*="css"]  {
         font-family: 'Inter', sans-serif;
     }
 
-    /* Başlık Stilini Özelleştirme */
     .main-title {
         font-size: 2.2rem;
         font-weight: 700;
         color: #FFFFFF;
         text-align: left;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         letter-spacing: -0.05rem;
     }
 
-    /* Chat Baloncukları Özelleştirme */
+    /* Chat Baloncukları */
     [data-testid="stChatMessage"] {
-        background-color: #1e1e24; /* Çok hafif gri-mavi */
+        background-color: #1e1e24;
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 10px;
         border: 1px solid #2d2d33;
     }
 
-    /* Kullanıcı Mesajı Farklılaştırma */
     [data-testid="stChatMessageUser"] {
         background-color: #262730;
         border: 1px solid #3e3e42;
-    }
-
-    /* Avatar ve İkon Düzenleme */
-    [data-testid="stChatMessageContent"] p {
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-
-    /* Üst boşluğu azaltma */
-    .block-container {
-        padding-top: 3rem;
-    }
-
-    /* Chat input barını daha temiz yapma */
-    .stChatInputContainer {
-        border-radius: 12px;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- GÜVENLİK ---
+# (Buradaki API yapılandırman olduğu gibi kalabilir)
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
 except Exception:
-    st.error("API Anahtarı bulunamadı! Secrets ayarlarını kontrol edin.")
+    st.error("API Anahtarı bulunamadı!")
     st.stop()
-
 # --- SİSTEM TALİMATI (MURAT'I ANLATAN ASİSTAN) ---
 PERSONAL_INFO = """
 SEN KİMSİN?
