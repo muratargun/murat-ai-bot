@@ -169,31 +169,41 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Mail Adresi: muratt.argun@gmail.com
    * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
+# Başlığı modern bir class ile yazdırıyoruz
 st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
 
-# Görünmez/Şeffaf Piksel (İkon bug'ını tamamen yok eder)
-EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-
 # --- CHAT MANTIĞI ---
+
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Merhaba. Ben Murat Argun'un dijital asistanıyım. Kariyeri veya projeleri hakkında bilgi alabilirsiniz."}]
+    st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyeri veya projeleri hakkında ne bilmek istersiniz?"}]
 
 for message in st.session_state.messages:
-    # Avatar parametresine şeffaf piksel vererek "smart_toy" ve "face" yazılarını sonsuza dek susturuyoruz.
-    with st.chat_message(message["role"], avatar=EMPTY_AVATAR):
+    with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Bir soru sorun..."):
+if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    with st.chat_message("user", avatar=EMPTY_AVATAR):
+    with st.chat_message("user"):
         st.markdown(prompt)
 
     try:
-        model = genai.GenerativeModel('models/gemini-1.5-flash', system_instruction=PERSONAL_INFO)
-        with st.chat_message("assistant", avatar=EMPTY_AVATAR):
+        # FİNAL ÇÖZÜM: Senin listendeki 16. sıradaki "latest" model.
+        # Bu model her zaman en güncel ve çalışan Flash sürümüne yönlendirir.
+        model = genai.GenerativeModel('models/gemini-flash-latest', system_instruction=PERSONAL_INFO)
+
+        with st.chat_message("assistant"):
             response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
+
     except Exception as e:
-        st.error("Bir sorun oluştu, lütfen tekrar deneyin.")
+        # Eğer "latest" hata verirse, listedeki 3. sıradaki "2.0-flash" modelini dener.
+        try:
+            model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+            with st.chat_message("assistant"):
+                response = model.generate_content(prompt)
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e2:
+            st.error("Hata oluştu.")
+            st.warning(f"Detay: {e2}")
