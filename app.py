@@ -37,7 +37,6 @@ st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
 
-    /* Dropdown Menü (Dark/Light Seçici) */
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
         color: #FFFFFF !important; 
@@ -47,7 +46,6 @@ st.markdown(f"""
         color: #FFFFFF !important;
     }}
 
-    /* STREAMLIT'IN KENDİ AVATAR VE BOŞLUKLARINI TAMAMEN SIFIRLA */
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
         width: 0 !important;
@@ -61,40 +59,36 @@ st.markdown(f"""
         margin-bottom: 15px !important;
     }}
 
-    /* KULLANICI MESAJ BALONU (Sağa Dayalı) */
     .msg-user {{
         background-color: {user_bubble};
         color: {text_color};
         padding: 15px 20px;
-        border-radius: 15px 15px 0px 15px; /* Alt sağ köşesi sivri */
+        border-radius: 15px 15px 0px 15px;
         border: 1px solid {border_color};
-        margin-left: auto; /* Sağa yaslar */
+        margin-left: auto;
         margin-right: 0;
         width: fit-content;
         max-width: 85%;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
 
-    /* ASİSTAN MESAJ BALONU (Sola Dayalı) */
     .msg-assistant {{
         background-color: {asst_bubble};
         color: {text_color};
         padding: 15px 20px;
-        border-radius: 15px 15px 15px 0px; /* Alt sol köşesi sivri */
+        border-radius: 15px 15px 15px 0px;
         border: 1px solid {border_color};
         margin-left: 0;
-        margin-right: auto; /* Sola yaslar */
+        margin-right: auto;
         width: fit-content;
         max-width: 85%;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
 
-    /* Balon içi paragraf boşluklarını düzeltme */
     .msg-user p, .msg-assistant p {{
         margin-bottom: 0 !important;
     }}
 
-    /* ARKA PLAN VE ALT ŞERİT */
     .stApp, [data-testid="stAppViewContainer"] {{
         background-color: {main_bg};
     }}
@@ -106,7 +100,6 @@ st.markdown(f"""
         border: 1px solid {border_color} !important;
     }}
 
-    /* TİPOGRAFİ */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     p, span, h1, textarea {{
         font-family: 'Inter', sans-serif !important;
@@ -125,6 +118,13 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
+# --- MODEL KONFİGÜRASYONU ---
+try:
+    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+    genai.configure(api_key=GEMINI_API_KEY)
+except:
+    st.error("API Anahtarı eksik!")
+    st.stop()
 # --- MODEL KONFİGÜRASYONU ---
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
@@ -216,7 +216,7 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
     with st.chat_message("user", avatar=EMPTY_AVATAR):
         st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
-    # 2. Asistanın cevap verme süreci (Yükleme Ekranı Eklendi)
+    # 2. Asistanın cevap verme süreci
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
@@ -231,18 +231,6 @@ if prompt := st.chat_input("Murat hakkında bir soru sorun..."):
                 except Exception as e2:
                     resp_text = "Sistemde bir yoğunluk var, lütfen tekrar deneyin."
         
-        # 3. Yükleme bitince asistan mesajını balon içinde göster
+        # 3. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
-
-    except Exception as e:
-        try:
-            model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
-            with st.chat_message("assistant", avatar=EMPTY_AVATAR):
-                response = model.generate_content(prompt)
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-        except Exception as e2:
-            st.error("Hata oluştu.")
-            st.warning(f"Detay: {e2}")
