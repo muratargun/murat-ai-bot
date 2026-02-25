@@ -4,60 +4,67 @@ import google.generativeai as genai
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
 
-# --- ULTRA MINIMALIST CSS ---
-st.markdown("""
+# --- TEMA YÖNETİMİ ---
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
+
+# Sağ üst köşeye küçük bir mod seçici ekleyelim
+col1, col2 = st.columns([0.8, 0.2])
+with col2:
+    theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
+    st.session_state.theme = theme_choice
+
+# --- ÖZELLEŞTİRİLMİŞ CSS (İkonlar Gizli & Dinamik Temalar) ---
+if st.session_state.theme == "Dark":
+    bg_color = "#0e1117"
+    text_color = "#FFFFFF"
+    user_msg_bg = "#1e1e24"
+    border_color = "#333"
+else:
+    bg_color = "#FFFFFF"
+    text_color = "#1F1F1F"
+    user_msg_bg = "#F7F7F8"
+    border_color = "#E5E5E5"
+
+st.markdown(f"""
     <style>
     /* Üst menüleri gizle */
-    header {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    header, #MainMenu, footer {{visibility: hidden;}}
 
-    /* Robot/Kullanıcı ikonlarını tamamen kaldır */
-    [data-testid="stChatMessageAvatarContainer"] {
-        display: none;
-    }
+    /* Amblemleri/İkonları tamamen kaldır */
+    [data-testid="stChatMessageAvatarContainer"] {{
+        display: none !important;
+    }}
 
-    /* Mesaj kutularını ikonlar yokmuş gibi sola yasla ve sadeleştir */
-    [data-testid="stChatMessage"] {
+    /* Mesaj alanlarını genişlet ve hizala */
+    [data-testid="stChatMessage"] {{
         background-color: transparent;
-        padding: 0px 0px 25px 0px; /* Sadece alt boşluk bırak */
-        border-radius: 0px;
+        padding: 10px 0px 20px 0px;
+        border-bottom: 1px solid {border_color};
+        margin-bottom: 10px;
+    }}
+
+    /* Kullanıcı sorusunu hafif vurgula */
+    [data-testid="stChatMessageUser"] {{
+        background-color: {user_msg_bg};
+        padding: 20px;
+        border-radius: 12px;
         border: none;
-    }
+    }}
 
-    /* Asistan ve Kullanıcı metni arasındaki ayrımı çok hafif tut */
-    [data-testid="stChatMessageAssistant"] {
-        color: #E0E0E0;
-    }
-
-    [data-testid="stChatMessageUser"] {
-        color: #FFFFFF;
-        font-weight: 500;
-        background-color: #1e1e24; /* Kullanıcı sorusunu hafif bir zemine al */
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-
-    /* Font iyileştirmesi */
+    /* Genel Font ve Renkler */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    html, body, [class*="css"] {
+    html, body, [data-testid="stAppViewContainer"] {{
+        background-color: {bg_color};
+        color: {text_color};
         font-family: 'Inter', sans-serif;
-    }
-
-    .main-title {
-        font-size: 1.8rem;
+    }}
+    
+    .main-title {{
+        font-size: 2rem;
         font-weight: 600;
-        color: #FFFFFF;
-        margin-bottom: 2rem;
-        border-bottom: 1px solid #333; /* Hafif bir ayraç */
-        padding-bottom: 10px;
-    }
-
-    /* Chat input barını daha şık yap */
-    .stChatInputContainer {
-        padding-bottom: 20px;
-    }
+        margin-bottom: 1.5rem;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -125,6 +132,11 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
    * Güncel ortalaması: 2.66, Geçen dönem ortalaması: 3.50 ve yüksek onur öğrencisi (ortalama ve akademi sorulduğunda kesin olarak geçen dönem onur öğrencisi olduğu belirtilmeli)
    * Araçlar: Python, Microsoft Word, Microsoft Excel, MS Power Platforms, Adobe Creative Cloud, Google Ads, Siemens NX11.
    * Diller: İngilizce (İleri), Çince (Başlangıç).
+   
+6. İLETİŞİM BİLGİLERİ
+   * Cep Telefonu: +90 546 243 53 72
+   * Mail Adresi: muratt.argun@gmail.com
+   * LinkedIn Profili: https://www.linkedin.com/in/murat-argun-667874269/
 """
 # Başlığı modern bir class ile yazdırıyoruz
 st.markdown('<h1 class="main-title">Murat Argun - Dijital Asistan</h1>', unsafe_allow_html=True)
