@@ -4,48 +4,59 @@ import google.generativeai as genai
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Murat Argun AI", page_icon="💼", layout="centered")
 
-# --- CUSTOM CSS (Modern & Sade Görünüm) ---
-# --- CUSTOM CSS (Üst Menü ve GitHub İkonunu Kaldırma) ---
+# --- ULTRA MINIMALIST CSS ---
 st.markdown("""
     <style>
-    /* Üstteki 'Share', 'Star' ve GitHub menüsünü tamamen gizler */
+    /* Üst menüleri gizle */
     header {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    
-    /* Sayfa içeriğinin en tepeye çok yapışmaması için boşluk bırakır */
-    .block-container {
-        padding-top: 2rem;
+
+    /* Robot/Kullanıcı ikonlarını tamamen kaldır */
+    [data-testid="stChatMessageAvatarContainer"] {
+        display: none;
     }
 
-    /* Modern Font ve Stil İyileştirmeleri */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-    
-    html, body, [class*="css"]  {
+    /* Mesaj kutularını ikonlar yokmuş gibi sola yasla ve sadeleştir */
+    [data-testid="stChatMessage"] {
+        background-color: transparent;
+        padding: 0px 0px 25px 0px; /* Sadece alt boşluk bırak */
+        border-radius: 0px;
+        border: none;
+    }
+
+    /* Asistan ve Kullanıcı metni arasındaki ayrımı çok hafif tut */
+    [data-testid="stChatMessageAssistant"] {
+        color: #E0E0E0;
+    }
+
+    [data-testid="stChatMessageUser"] {
+        color: #FFFFFF;
+        font-weight: 500;
+        background-color: #1e1e24; /* Kullanıcı sorusunu hafif bir zemine al */
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* Font iyileştirmesi */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
 
     .main-title {
-        font-size: 2.2rem;
-        font-weight: 700;
+        font-size: 1.8rem;
+        font-weight: 600;
         color: #FFFFFF;
-        text-align: left;
-        margin-bottom: 1.5rem;
-        letter-spacing: -0.05rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #333; /* Hafif bir ayraç */
+        padding-bottom: 10px;
     }
 
-    /* Chat Baloncukları */
-    [data-testid="stChatMessage"] {
-        background-color: #1e1e24;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 10px;
-        border: 1px solid #2d2d33;
-    }
-
-    [data-testid="stChatMessageUser"] {
-        background-color: #262730;
-        border: 1px solid #3e3e42;
+    /* Chat input barını daha şık yap */
+    .stChatInputContainer {
+        padding-bottom: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
