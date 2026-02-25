@@ -283,29 +283,41 @@ if prompt:
         role = "model" if msg["role"] == "assistant" else "user"
         formatted_history.append({"role": role, "parts": [msg["content"]]})
 
+    # 3. Asistanın cevap verme süreci (Şelale Sistemi: 3.0 -> 2.5 -> 2.0)
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
-                # Önce 1.5-flash deniyoruz
-                model = genai.GenerativeModel('models/gemini-1.5-flash', system_instruction=PERSONAL_INFO)
+                # 1. AŞAMA: Önce en güncel ve hızlı modeli dene
+                model = genai.GenerativeModel('gemini-3.0-flash', system_instruction=PERSONAL_INFO)
                 chat = model.start_chat(history=formatted_history)
                 response = chat.send_message(prompt)
                 resp_text = response.text
-            except Exception as e:
+                
+            except Exception as e1:
                 try:
-                    # Yedeğe (2.0-flash) geçiyoruz
-                    model = genai.GenerativeModel('models/gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+                    # 2. AŞAMA: 3.0'ın kotası bittiyse (veya çöktüyse) 2.5 Flash'a geç
+                    model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=PERSONAL_INFO)
                     chat = model.start_chat(history=formatted_history)
                     response = chat.send_message(prompt)
                     resp_text = response.text
+                    
                 except Exception as e2:
-                    error_msg = str(e2)
-                    # EĞER HATA KOTA HATASIYSA (429) İK'CIYA KİBARCA BEKLEMESİNİ SÖYLE:
-                    if "429" in error_msg or "Quota" in error_msg:
-                        resp_text = "Şu an sistemimde yoğunluk var (Google API Kota Limiti). Lütfen yaklaşık 30 saniye bekleyip sorunuzu tekrar sorun."
-                    else:
-                        resp_text = "Geçici bir bağlantı sorunu oluştu. Lütfen sayfayı yenileyip tekrar deneyin."
+                    try:
+                        # 3. AŞAMA: 2.5'in de kotası bittiyse son çare 2.0 Flash'ı kullan
+                        model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=PERSONAL_INFO)
+                        chat = model.start_chat(history=formatted_history)
+                        response = chat.send_message(prompt)
+                        resp_text = response.text
+                        
+                    except Exception as e3:
+                        # TÜM KOTALAR BİTTİYSE KİBARCA UYAR
+                        error_msg = str(e3)
+                        if "429" in error_msg or "Quota" in error_msg:
+                            resp_text = "Şu an sistemimde yoğunluk var (Google API Kota Limiti). Lütfen yaklaşık 30 saniye bekleyip sorunuzu tekrar sorun."
+                        else:
+                            resp_text = "Geçici bir bağlantı sorunu oluştu. Lütfen sayfayı yenileyip tekrar deneyin."
         
+        # 4. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
         st.rerun()
