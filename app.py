@@ -46,6 +46,7 @@ if st.session_state.theme == "Dark":
     border_color = "#333333"
     input_bg = "#1e1e24"
     select_bg = "#1e1e24"
+    select_list_bg = "#1e1e24" # Açılır menü listesi arka planı
     title_color = "#FFFFFF"
     btn_bg = "#1e1e24"
     btn_text = "#FFFFFF"
@@ -57,6 +58,7 @@ else:
     border_color = "#D1D5DB"
     input_bg = "#FFFFFF"
     select_bg = "#FFFFFF"
+    select_list_bg = "#FFFFFF" # Açılır menü listesi arka planı
     title_color = "#111827"
     btn_bg = "#FFFFFF"
     btn_text = "#111827"
@@ -96,12 +98,31 @@ st.markdown(f"""
         .title-role {{font-size: 0.85rem;}}
     }}
 
+    /* SELECTBOX KUTUSU VE AÇILIR MENÜ STİLLERİ - TAMAMEN DÜZELTİLDİ */
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
         color: {text_color} !important; 
         border: 1px solid {border_color} !important;
     }}
-    li[role="option"] {{ color: {text_color} !important; }}
+    
+    /* Seçenekler listesinin tamamı (popover) */
+    div[role="listbox"], 
+    div[data-baseweb="popover"] > div,
+    ul[data-baseweb="menu"] {{
+        background-color: {select_list_bg} !important;
+        border: 1px solid {border_color} !important;
+    }}
+    
+    /* Her bir seçeneğin arka planı ve metni */
+    li[role="option"] {{ 
+        color: {text_color} !important;
+        background-color: {select_list_bg} !important;
+    }}
+    
+    /* Seçeneğin üzerine gelindiğindeki renk */
+    li[role="option"]:hover {{ 
+        background-color: {user_bubble} !important; 
+    }}
 
     /* BUTON VE CV İNDİRME BÖLÜMÜ STİLLERİ */
     div.stButton > button, div.stDownloadButton > button {{
