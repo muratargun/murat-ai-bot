@@ -47,6 +47,8 @@ if st.session_state.theme == "Dark":
     input_bg = "#1e1e24"
     select_bg = "#1e1e24"
     title_color = "#FFFFFF"
+    btn_bg = "#1e1e24"
+    btn_text = "#FFFFFF"
 else:
     main_bg = "#F9FAFB"
     text_color = "#111827"
@@ -54,8 +56,10 @@ else:
     asst_bubble = "#FFFFFF"
     border_color = "#D1D5DB"
     input_bg = "#FFFFFF"
-    select_bg = "#374151"
+    select_bg = "#FFFFFF"
     title_color = "#111827"
+    btn_bg = "#FFFFFF"
+    btn_text = "#111827"
 
 # --- CSS: TASARIM, BAŞLIK VE BUTONLAR ---
 st.markdown(f"""
@@ -94,10 +98,24 @@ st.markdown(f"""
 
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
-        color: #FFFFFF !important; 
-        border: none !important;
+        color: {text_color} !important; 
+        border: 1px solid {border_color} !important;
     }}
-    li[role="option"] {{ color: #FFFFFF !important; }}
+    li[role="option"] {{ color: {text_color} !important; }}
+
+    /* BUTON VE CV İNDİRME BÖLÜMÜ STİLLERİ */
+    div.stButton > button, div.stDownloadButton > button {{
+        background-color: {btn_bg} !important;
+        color: {btn_text} !important;
+        border: 1px solid {border_color} !important;
+    }}
+    div.stButton > button p, div.stDownloadButton > button p {{
+        color: {btn_text} !important;
+    }}
+    div.stButton > button:hover, div.stDownloadButton > button:hover {{
+        border-color: {text_color} !important;
+        opacity: 0.8;
+    }}
 
     [data-testid="stChatMessageAvatarContainer"] {{
         display: none !important;
@@ -140,9 +158,18 @@ st.markdown(f"""
 
     .stApp, [data-testid="stAppViewContainer"] {{ background-color: {main_bg}; }}
     [data-testid="stBottom"], [data-testid="stBottom"] > div {{ background-color: {main_bg} !important; }}
+    
+    /* CHAT INPUT İÇİ STİLLERİ */
     [data-testid="stChatInput"] {{
         background-color: {input_bg} !important;
         border: 1px solid {border_color} !important;
+    }}
+    [data-testid="stChatInput"] textarea {{
+        color: {text_color} !important;
+        background-color: {input_bg} !important;
+    }}
+    [data-testid="stChatInput"] div[data-baseweb="base-input"] {{
+        background-color: {input_bg} !important;
     }}
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
