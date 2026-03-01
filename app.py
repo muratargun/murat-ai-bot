@@ -159,17 +159,28 @@ st.markdown(f"""
     .stApp, [data-testid="stAppViewContainer"] {{ background-color: {main_bg}; }}
     [data-testid="stBottom"], [data-testid="stBottom"] > div {{ background-color: {main_bg} !important; }}
     
-    /* CHAT INPUT İÇİ STİLLERİ */
+    /* CHAT INPUT İÇİ STİLLERİ - TAMAMEN DÜZELTİLDİ */
     [data-testid="stChatInput"] {{
+        background-color: {main_bg} !important;
+    }}
+    [data-testid="stChatInput"] > div {{
         background-color: {input_bg} !important;
         border: 1px solid {border_color} !important;
     }}
     [data-testid="stChatInput"] textarea {{
         color: {text_color} !important;
-        background-color: {input_bg} !important;
+        background-color: transparent !important;
     }}
-    [data-testid="stChatInput"] div[data-baseweb="base-input"] {{
-        background-color: {input_bg} !important;
+    [data-testid="stChatInput"] textarea::placeholder {{
+        color: {text_color} !important;
+        opacity: 0.6 !important;
+    }}
+    [data-testid="stChatInput"] button {{
+        background-color: transparent !important;
+    }}
+    [data-testid="stChatInput"] svg {{
+        fill: {text_color} !important;
+        color: {text_color} !important;
     }}
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
