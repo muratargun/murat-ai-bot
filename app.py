@@ -11,8 +11,44 @@ if "theme" not in st.session_state:
 if "quick_prompt" not in st.session_state:
     st.session_state.quick_prompt = None
 
-# --- ÜST BAR (CV İNDİRME VE TEMA SEÇİMİ) ---
-col1, col2, col3 = st.columns([0.65, 0.20, 0.15])
+# --- RENK PALETLERİ VE BALON TASARIMLARI ---
+# (Renkler arayüz kodundan önce tanımlanmalı ki üst barda kullanılabilsin)
+if st.session_state.theme == "Dark":
+    main_bg = "#0e1117"
+    text_color = "#FFFFFF"
+    user_bubble = "#262730"
+    asst_bubble = "#1a1c23"
+    border_color = "#333333"
+    input_bg = "#1e1e24"
+    select_bg = "#1e1e24"
+    select_list_bg = "#1e1e24"
+    title_color = "#FFFFFF"
+    btn_bg = "#1e1e24"
+    btn_text = "#FFFFFF"
+else:
+    main_bg = "#F9FAFB"
+    text_color = "#111827"
+    user_bubble = "#E5E7EB"
+    asst_bubble = "#FFFFFF"
+    border_color = "#D1D5DB"
+    input_bg = "#FFFFFF"
+    select_bg = "#FFFFFF"
+    select_list_bg = "#FFFFFF"
+    title_color = "#111827"
+    btn_bg = "#FFFFFF"
+    btn_text = "#111827"
+
+# --- ÜST BAR (BAŞLIK, CV İNDİRME VE TEMA SEÇİMİ) ---
+# Sütun oranlarını masaüstü için optimize ettik. Mobilde otomatik alt alta dizilecekler.
+col1, col2, col3 = st.columns([0.55, 0.25, 0.20])
+
+with col1:
+    st.markdown(f"""
+        <div class="new-pro-title">
+            <h2 class="title-name">Murat Argun</h2>
+            <p class="title-role">Dijital Asistan</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 with col2:
     try:
@@ -28,7 +64,7 @@ with col2:
     except FileNotFoundError:
         st.download_button(
             label="📄 CV'mi İndir",
-            data=b"CV dosyasi bulunamadi. Lutfen GitHub deposuna 'Murat Argun Resume.pdf' dosyasini yukleyin.",
+            data=b"CV dosyasi bulunamadi.",
             file_name="hata_raporu.txt",
             use_container_width=True
         )
@@ -37,46 +73,18 @@ with col3:
     theme_choice = st.selectbox("Görünüm", ["Dark", "Light"], label_visibility="collapsed")
     st.session_state.theme = theme_choice
 
-# --- RENK PALETLERİ VE BALON TASARIMLARI ---
-if st.session_state.theme == "Dark":
-    main_bg = "#0e1117"
-    text_color = "#FFFFFF"
-    user_bubble = "#262730"
-    asst_bubble = "#1a1c23"
-    border_color = "#333333"
-    input_bg = "#1e1e24"
-    select_bg = "#1e1e24"
-    select_list_bg = "#1e1e24" # Açılır menü listesi arka planı
-    title_color = "#FFFFFF"
-    btn_bg = "#1e1e24"
-    btn_text = "#FFFFFF"
-else:
-    main_bg = "#F9FAFB"
-    text_color = "#111827"
-    user_bubble = "#E5E7EB"
-    asst_bubble = "#FFFFFF"
-    border_color = "#D1D5DB"
-    input_bg = "#FFFFFF"
-    select_bg = "#FFFFFF"
-    select_list_bg = "#FFFFFF" # Açılır menü listesi arka planı
-    title_color = "#111827"
-    btn_bg = "#FFFFFF"
-    btn_text = "#111827"
-
 # --- CSS: TASARIM, BAŞLIK VE BUTONLAR ---
 st.markdown(f"""
     <style>
     header, #MainMenu, footer {{visibility: hidden;}}
 
+    /* BAŞLIK DÜZENLEMESİ (Fixed kaldırıldı, grid'e uyumlu hale getirildi) */
     .new-pro-title {{
-        position: fixed; 
-        top: 20px;
-        left: 25px;
-        z-index: 999; 
+        margin-top: 5px;
     }}
     .title-name {{
         font-family: 'Inter', sans-serif;
-        font-size: 1.2rem; 
+        font-size: 1.4rem; 
         font-weight: 700;
         color: {title_color};
         margin: 0;
@@ -92,34 +100,33 @@ st.markdown(f"""
         margin-top: 2px;
     }}
 
+    /* MOBİL GÖRÜNÜM AYARLARI */
     @media (max-width: 600px) {{
-        .new-pro-title {{top: 15px; left: 15px;}}
-        .title-name {{font-size: 1rem;}}
-        .title-role {{font-size: 0.85rem;}}
+        .new-pro-title {{
+            text-align: center;
+            margin-bottom: 15px;
+            margin-top: 0px;
+        }}
+        .title-name {{font-size: 1.6rem;}}
+        .title-role {{font-size: 1.1rem;}}
     }}
 
-    /* SELECTBOX KUTUSU VE AÇILIR MENÜ STİLLERİ - TAMAMEN DÜZELTİLDİ */
+    /* SELECTBOX KUTUSU VE AÇILIR MENÜ STİLLERİ */
     div[data-baseweb="select"] > div {{
         background-color: {select_bg} !important;
         color: {text_color} !important; 
         border: 1px solid {border_color} !important;
     }}
-    
-    /* Seçenekler listesinin tamamı (popover) */
     div[role="listbox"], 
     div[data-baseweb="popover"] > div,
     ul[data-baseweb="menu"] {{
         background-color: {select_list_bg} !important;
         border: 1px solid {border_color} !important;
     }}
-    
-    /* Her bir seçeneğin arka planı ve metni */
     li[role="option"] {{ 
         color: {text_color} !important;
         background-color: {select_list_bg} !important;
     }}
-    
-    /* Seçeneğin üzerine gelindiğindeki renk */
     li[role="option"]:hover {{ 
         background-color: {user_bubble} !important; 
     }}
@@ -180,7 +187,7 @@ st.markdown(f"""
     .stApp, [data-testid="stAppViewContainer"] {{ background-color: {main_bg}; }}
     [data-testid="stBottom"], [data-testid="stBottom"] > div {{ background-color: {main_bg} !important; }}
     
-    /* CHAT INPUT İÇİ STİLLERİ - KESİN ÇÖZÜM */
+    /* CHAT INPUT İÇİ STİLLERİ */
     [data-testid="stChatInput"] {{
         background-color: {main_bg} !important;
     }}
@@ -188,14 +195,11 @@ st.markdown(f"""
         background-color: {input_bg} !important;
         border: 1px solid {border_color} !important;
     }}
-    
-    /* İç içe geçmiş Streamlit katmanlarının zorla renklendirilmesi */
     [data-testid="stChatInput"] div[data-baseweb="textarea"],
     [data-testid="stChatInput"] div[data-baseweb="base-input"],
     [data-testid="stChatInput"] div[data-baseweb="input"] {{
         background-color: {input_bg} !important;
     }}
-    
     [data-testid="stChatInput"] textarea {{
         color: {text_color} !important;
         background-color: {input_bg} !important;
@@ -296,14 +300,6 @@ Eğer soru Murat'ın profesyonel hayatı, projeleri veya eğitimiyle ilgili değ
 
 EMPTY_AVATAR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
-# --- YENİ SOL ÜST BAŞLIK ---
-st.markdown(f"""
-    <div class="new-pro-title">
-        <h2 class="title-name">Murat Argun</h2>
-        <p class="title-role">Dijital Asistan</p>
-    </div>
-    """, unsafe_allow_html=True)
-
 # --- CHAT MANTIĞI VE ARAYÜZ ---
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Merhaba! Ben Murat Argun'un asistanıyım. Kariyer, staj deneyimleri veya teknik yetkinlikler hakkında ne bilmek istersiniz?"}]
@@ -342,20 +338,16 @@ if prompt:
     with st.chat_message("user", avatar=EMPTY_AVATAR):
         st.markdown(f"<div class='msg-user'>\n\n{prompt}\n\n</div>", unsafe_allow_html=True)
 
-    # DÜZELTME: Google'ın resmi start_chat metoduna uygun geçmiş formatlaması.
     formatted_history = []
-    # Son yazdığımız soruyu (prompt) geçmişe eklemiyoruz, onu ayrıca göndereceğiz.
     for i, msg in enumerate(st.session_state.messages[:-1]):
         if i == 0 and msg["role"] == "assistant":
             continue
         role = "model" if msg["role"] == "assistant" else "user"
         formatted_history.append({"role": role, "parts": [msg["content"]]})
 
-    # 3. Asistanın cevap verme süreci (Şelale Sistemi: 3.0 -> 2.5 -> 2.0)
     with st.chat_message("assistant", avatar=EMPTY_AVATAR):
         with st.spinner("Asistan yanıtlıyor..."):
             try:
-                # 1. AŞAMA: Önce en güncel ve hızlı modeli dene
                 model = genai.GenerativeModel('gemini-3.0-flash', system_instruction=PERSONAL_INFO)
                 chat = model.start_chat(history=formatted_history)
                 response = chat.send_message(prompt)
@@ -363,7 +355,6 @@ if prompt:
                 
             except Exception as e1:
                 try:
-                    # 2. AŞAMA: 3.0'ın kotası bittiyse (veya çöktüyse) 2.5 Flash'a geç
                     model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=PERSONAL_INFO)
                     chat = model.start_chat(history=formatted_history)
                     response = chat.send_message(prompt)
@@ -371,21 +362,18 @@ if prompt:
                     
                 except Exception as e2:
                     try:
-                        # 3. AŞAMA: 2.5'in de kotası bittiyse son çare 2.0 Flash'ı kullan
                         model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=PERSONAL_INFO)
                         chat = model.start_chat(history=formatted_history)
                         response = chat.send_message(prompt)
                         resp_text = response.text
                         
                     except Exception as e3:
-                        # TÜM KOTALAR BİTTİYSE KİBARCA UYAR
                         error_msg = str(e3)
                         if "429" in error_msg or "Quota" in error_msg:
                             resp_text = "Şu an sistemimde yoğunluk var (Google API Kota Limiti). Lütfen yaklaşık 30 saniye bekleyip sorunuzu tekrar sorun."
                         else:
                             resp_text = "Geçici bir bağlantı sorunu oluştu. Lütfen sayfayı yenileyip tekrar deneyin."
         
-        # 4. Yükleme bitince asistan mesajını balon içinde göster ve kaydet
         st.markdown(f"<div class='msg-assistant'>\n\n{resp_text}\n\n</div>", unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": resp_text})
         st.rerun()
