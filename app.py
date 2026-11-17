@@ -22,19 +22,20 @@ if "quick_prompt" not in st.session_state:
 # --- PALETTE ---
 if st.session_state.light_mode:
     c = dict(
-        bg="#F5F6FA", surface="#FFFFFF", surface2="#EEF0F7", border="#E2E6F0",
-        text="#0F172A", muted="#64748B",
-        glow1="rgba(99,102,241,0.14)", glow2="rgba(34,211,238,0.12)",
-        shadow="0 8px 30px rgba(15,23,42,0.06)",
+        bg="#F4F6F5", surface="#FFFFFF", surface2="#EAEFED", border="#DCE3E0",
+        text="#12201C", muted="#5B6B65",
+        glow1="rgba(62,124,114,0.10)", glow2="rgba(196,164,108,0.10)",
+        shadow="0 8px 30px rgba(18,32,28,0.06)",
     )
 else:
     c = dict(
-        bg="#0A0E17", surface="#111827", surface2="#1A2233", border="rgba(255,255,255,0.09)",
-        text="#E8ECF4", muted="#8B95A8",
-        glow1="rgba(99,102,241,0.28)", glow2="rgba(34,211,238,0.14)",
+        bg="#0D1210", surface="#141C19", surface2="#1C2723", border="rgba(255,255,255,0.08)",
+        text="#E6ECE9", muted="#8A9A94",
+        glow1="rgba(62,124,114,0.18)", glow2="rgba(196,164,108,0.07)",
         shadow="0 8px 30px rgba(0,0,0,0.35)",
     )
-ACCENT = "linear-gradient(135deg, #6366F1 0%, #22D3EE 100%)"
+ACCENT = "linear-gradient(135deg, #3B766C 0%, #5B9A8B 100%)"
+ACCENT_SOLID = "#4A8A7C"
 
 # --- CSS ---
 st.markdown(f"""
@@ -86,7 +87,7 @@ p, label, textarea, li, h1, h2, h3 {{
     display: flex; align-items: center; justify-content: center;
     font-family: 'Inter', sans-serif;
     font-weight: 800; font-size: 1.5rem; letter-spacing: 0.02em;
-    box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+    box-shadow: 0 6px 20px rgba(59,118,108,0.30);
 }}
 .hero-name {{
     font-family: 'Inter', sans-serif;
@@ -111,11 +112,11 @@ p, label, textarea, li, h1, h2, h3 {{
     text-decoration: none !important;
 }}
 .chip-live {{
-    background: rgba(34,197,94,0.12);
-    color: #22C55E !important;
-    border-color: rgba(34,197,94,0.35);
+    background: rgba(95,185,138,0.12);
+    color: #5FB98A !important;
+    border-color: rgba(95,185,138,0.35);
 }}
-a.chip:hover {{ border-color: #6366F1; color: {c['text']} !important; }}
+a.chip:hover {{ border-color: {ACCENT_SOLID}; color: {c['text']} !important; }}
 
 @media (max-width: 600px) {{
     .hero {{ flex-direction: column; text-align: center; padding: 22px 18px; }}
@@ -137,8 +138,8 @@ div.stButton > button {{
 div.stButton > button p {{ color: {c['text']} !important; margin: 0; font-weight: 500; }}
 div.stButton > button:hover {{
     transform: translateY(-2px);
-    border-color: #6366F1 !important;
-    box-shadow: 0 8px 22px rgba(99,102,241,0.25) !important;
+    border-color: {ACCENT_SOLID} !important;
+    box-shadow: 0 8px 22px rgba(59,118,108,0.22) !important;
 }}
 div.stDownloadButton > button {{
     background: {ACCENT} !important;
@@ -146,7 +147,7 @@ div.stDownloadButton > button {{
     border: none !important;
     border-radius: 12px !important;
     font-weight: 600;
-    box-shadow: 0 6px 18px rgba(99,102,241,0.3) !important;
+    box-shadow: 0 6px 18px rgba(59,118,108,0.3) !important;
 }}
 div.stDownloadButton > button p {{ color: #FFFFFF !important; font-weight: 600; margin: 0; }}
 div.stDownloadButton > button:hover {{ opacity: 0.9; }}
@@ -185,7 +186,7 @@ div.stDownloadButton > button:hover {{ opacity: 0.9; }}
     border-radius: 18px 18px 4px 18px;
     margin-left: auto; margin-right: 0;
     width: fit-content; max-width: 85%;
-    box-shadow: 0 6px 18px rgba(99,102,241,0.25);
+    box-shadow: 0 6px 18px rgba(59,118,108,0.22);
 }}
 .msg-user p, .msg-user li {{ color: #FFFFFF !important; margin-bottom: 0 !important; }}
 .msg-assistant {{
@@ -194,12 +195,15 @@ div.stDownloadButton > button:hover {{ opacity: 0.9; }}
     padding: 14px 18px;
     border-radius: 18px 18px 18px 4px;
     border: 1px solid {c['border']};
-    border-left: 3px solid #6366F1;
+    border-left: 3px solid {ACCENT_SOLID};
     margin-left: 0; margin-right: auto;
     width: fit-content; max-width: 88%;
     box-shadow: {c['shadow']};
 }}
 .msg-assistant p {{ margin-bottom: 0 !important; }}
+.msg-assistant ul {{ margin: 8px 0 0 0 !important; padding-left: 1.2rem !important; }}
+.msg-assistant li {{ margin-bottom: 6px !important; }}
+.msg-assistant li::marker {{ color: {ACCENT_SOLID}; }}
 
 /* INPUT */
 [data-testid="stBottom"] {{
@@ -214,8 +218,8 @@ div.stDownloadButton > button:hover {{ opacity: 0.9; }}
     box-shadow: {c['shadow']};
 }}
 [data-testid="stChatInput"] > div:focus-within {{
-    border-color: #6366F1 !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+    border-color: {ACCENT_SOLID} !important;
+    box-shadow: 0 0 0 3px rgba(59,118,108,0.22);
 }}
 [data-testid="stChatInput"] div[data-baseweb="textarea"],
 [data-testid="stChatInput"] div[data-baseweb="base-input"],
@@ -290,9 +294,10 @@ You are the digital assistant of Murat Argun. Recruiters and hiring managers ask
 STYLE
 - Use a calm, natural, factual tone. Do not praise or exaggerate. Never use words like "impressive", "outstanding", "remarkable", "exceptional" or "amazing". Describe achievements through what was done and what the result was, not through adjectives.
 - Answer the question directly in the first sentence. No filler openings such as "Great question".
-- Keep answers short: most should be 3-6 sentences. Go longer only if the visitor asks for detail.
+- Keep answers compact. Typical shape: one direct sentence, then 3-5 short bullet points. Go longer only if the visitor asks for detail.
 - Do not behave like an agent: do not take on tasks, make plans, or offer lists of things you could do. Answer the question and stop. Do not end every reply with a question; ask one short question only if the conversation is stuck.
-- Write plain text. No HTML tags, markdown headings or tables. A very short list of at most 3-4 items is fine when needed.
+- FORMAT: Use bullet points. Start each bullet with "- " on its own line, one idea per bullet, each bullet at most two lines. Put a one-sentence answer before the bullets. For a very simple factual question (a date, a phone number, yes/no) one or two sentences are enough. No HTML tags, markdown headings or tables.
+- REASONS: Never state a claim, skill or strength on its own. Give the reason or evidence from the knowledge base right next to it, in the same bullet (what Murat did, the project, the result, the number). Use the pattern "claim: because / evidence". Example: "Comfortable with ambiguity: at Insider he grouped past tickets into problem types, which led the team to deprioritize some features and fix core engine issues first." If the knowledge base has no evidence for a claim, do not make the claim.
 - Never say "I". Refer to Murat in the third person ("Murat", "he").
 - LANGUAGE: Default to English. Reply in Turkish only if the visitor writes in Turkish. Otherwise match the visitor's language.
 
