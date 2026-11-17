@@ -13,54 +13,248 @@ GREETING = (
     "Merhaba, Murat Argun'un asistanıyım. Türkçe de yazabilirsiniz."
 )
 
-# --- THEME AND QUICK-PROMPT STATE ---
-if "theme" not in st.session_state:
-    st.session_state.theme = "Dark"
+# --- STATE ---
+if "light_mode" not in st.session_state:
+    st.session_state.light_mode = False
 if "quick_prompt" not in st.session_state:
     st.session_state.quick_prompt = None
 
-# --- TOP BAR ---
-# The theme selectbox is bound with key="theme", so colors update in the same run when the choice changes.
-col1, col2, col3 = st.columns([0.55, 0.25, 0.20])
-
-with col3:
-    st.selectbox("Appearance", ["Dark", "Light"], key="theme", label_visibility="collapsed")
-
-# --- COLOR PALETTES ---
-if st.session_state.theme == "Dark":
-    main_bg = "#0e1117"
-    text_color = "#FFFFFF"
-    user_bubble = "#262730"
-    asst_bubble = "#1a1c23"
-    border_color = "#333333"
-    input_bg = "#1e1e24"
-    select_bg = "#1e1e24"
-    select_list_bg = "#1e1e24"
-    title_color = "#FFFFFF"
-    btn_bg = "#1e1e24"
-    btn_text = "#FFFFFF"
+# --- PALETTE ---
+if st.session_state.light_mode:
+    c = dict(
+        bg="#F5F6FA", surface="#FFFFFF", surface2="#EEF0F7", border="#E2E6F0",
+        text="#0F172A", muted="#64748B",
+        glow1="rgba(99,102,241,0.14)", glow2="rgba(34,211,238,0.12)",
+        shadow="0 8px 30px rgba(15,23,42,0.06)",
+    )
 else:
-    main_bg = "#F9FAFB"
-    text_color = "#111827"
-    user_bubble = "#E5E7EB"
-    asst_bubble = "#FFFFFF"
-    border_color = "#D1D5DB"
-    input_bg = "#FFFFFF"
-    select_bg = "#FFFFFF"
-    select_list_bg = "#FFFFFF"
-    title_color = "#111827"
-    btn_bg = "#FFFFFF"
-    btn_text = "#111827"
+    c = dict(
+        bg="#0A0E17", surface="#111827", surface2="#1A2233", border="rgba(255,255,255,0.09)",
+        text="#E8ECF4", muted="#8B95A8",
+        glow1="rgba(99,102,241,0.28)", glow2="rgba(34,211,238,0.14)",
+        shadow="0 8px 30px rgba(0,0,0,0.35)",
+    )
+ACCENT = "linear-gradient(135deg, #6366F1 0%, #22D3EE 100%)"
 
-with col1:
-    st.markdown("""
-        <div class="new-pro-title">
-            <h2 class="title-name">Murat Argun</h2>
-            <p class="title-role">Digital Assistant</p>
-        </div>
-        """, unsafe_allow_html=True)
+# --- CSS ---
+st.markdown(f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+header, #MainMenu, footer {{visibility: hidden;}}
 
-with col2:
+.stApp {{
+    background:
+        radial-gradient(900px 480px at 12% -8%, {c['glow1']}, transparent 60%),
+        radial-gradient(700px 420px at 100% 0%, {c['glow2']}, transparent 55%),
+        {c['bg']};
+    background-attachment: fixed;
+}}
+[data-testid="stAppViewContainer"], [data-testid="stHeader"] {{ background: transparent !important; }}
+.block-container {{ max-width: 820px; padding-top: 1.4rem; padding-bottom: 7rem; }}
+
+p, label, textarea, li, h1, h2, h3 {{
+    font-family: 'Inter', sans-serif !important;
+    color: {c['text']} !important;
+    line-height: 1.6;
+}}
+
+/* HERO */
+.hero {{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 26px;
+    border-radius: 22px;
+    background: {c['surface']};
+    border: 1px solid {c['border']};
+    box-shadow: {c['shadow']};
+    overflow: hidden;
+    margin-bottom: 14px;
+}}
+.hero::before {{
+    content: "";
+    position: absolute; left: 0; top: 0; right: 0; height: 3px;
+    background: {ACCENT};
+}}
+.avatar {{
+    flex: 0 0 auto;
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: {ACCENT};
+    color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800; font-size: 1.5rem; letter-spacing: 0.02em;
+    box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+}}
+.hero-name {{
+    font-family: 'Inter', sans-serif;
+    font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em;
+    color: {c['text']};
+    line-height: 1.2;
+}}
+.hero-role {{
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem; color: {c['muted']};
+    margin-top: 4px;
+}}
+.chips {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }}
+.chip {{
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem; font-weight: 500;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: {c['surface2']};
+    color: {c['muted']} !important;
+    border: 1px solid {c['border']};
+    text-decoration: none !important;
+}}
+.chip-live {{
+    background: rgba(34,197,94,0.12);
+    color: #22C55E !important;
+    border-color: rgba(34,197,94,0.35);
+}}
+a.chip:hover {{ border-color: #6366F1; color: {c['text']} !important; }}
+
+@media (max-width: 600px) {{
+    .hero {{ flex-direction: column; text-align: center; padding: 22px 18px; }}
+    .chips {{ justify-content: center; }}
+    .hero-name {{ font-size: 1.5rem; }}
+}}
+
+/* BUTTONS */
+div.stButton > button {{
+    background: {c['surface']} !important;
+    color: {c['text']} !important;
+    border: 1px solid {c['border']} !important;
+    border-radius: 14px !important;
+    padding: 0.85rem 1rem !important;
+    font-weight: 500;
+    box-shadow: none !important;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}}
+div.stButton > button p {{ color: {c['text']} !important; margin: 0; font-weight: 500; }}
+div.stButton > button:hover {{
+    transform: translateY(-2px);
+    border-color: #6366F1 !important;
+    box-shadow: 0 8px 22px rgba(99,102,241,0.25) !important;
+}}
+div.stDownloadButton > button {{
+    background: {ACCENT} !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(99,102,241,0.3) !important;
+}}
+div.stDownloadButton > button p {{ color: #FFFFFF !important; font-weight: 600; margin: 0; }}
+div.stDownloadButton > button:hover {{ opacity: 0.9; }}
+
+.section-label {{
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: {c['muted']};
+    margin: 18px 0 10px 2px;
+}}
+.fine-print {{
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem; color: {c['muted']};
+    margin-top: 14px; text-align: center;
+}}
+
+/* CHAT */
+[data-testid^="stChatMessageAvatar"] {{ display: none !important; }}
+[data-testid="stChatMessage"] {{
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    box-shadow: none !important;
+    margin-bottom: 14px !important;
+    animation: fadeUp .25s ease;
+}}
+@keyframes fadeUp {{
+    from {{ opacity: 0; transform: translateY(6px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+}}
+.msg-user {{
+    background: {ACCENT};
+    color: #FFFFFF;
+    padding: 13px 18px;
+    border-radius: 18px 18px 4px 18px;
+    margin-left: auto; margin-right: 0;
+    width: fit-content; max-width: 85%;
+    box-shadow: 0 6px 18px rgba(99,102,241,0.25);
+}}
+.msg-user p, .msg-user li {{ color: #FFFFFF !important; margin-bottom: 0 !important; }}
+.msg-assistant {{
+    background: {c['surface']};
+    color: {c['text']};
+    padding: 14px 18px;
+    border-radius: 18px 18px 18px 4px;
+    border: 1px solid {c['border']};
+    border-left: 3px solid #6366F1;
+    margin-left: 0; margin-right: auto;
+    width: fit-content; max-width: 88%;
+    box-shadow: {c['shadow']};
+}}
+.msg-assistant p {{ margin-bottom: 0 !important; }}
+
+/* INPUT */
+[data-testid="stBottom"] {{
+    background: linear-gradient(to top, {c['bg']} 65%, transparent) !important;
+}}
+[data-testid="stBottom"] > div {{ background: transparent !important; }}
+[data-testid="stChatInput"] {{ background: transparent !important; }}
+[data-testid="stChatInput"] > div {{
+    background: {c['surface']} !important;
+    border: 1px solid {c['border']} !important;
+    border-radius: 16px !important;
+    box-shadow: {c['shadow']};
+}}
+[data-testid="stChatInput"] > div:focus-within {{
+    border-color: #6366F1 !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+}}
+[data-testid="stChatInput"] div[data-baseweb="textarea"],
+[data-testid="stChatInput"] div[data-baseweb="base-input"],
+[data-testid="stChatInput"] div[data-baseweb="input"] {{ background: transparent !important; }}
+[data-testid="stChatInput"] textarea {{
+    color: {c['text']} !important;
+    background: transparent !important;
+    -webkit-text-fill-color: {c['text']} !important;
+}}
+[data-testid="stChatInput"] textarea::placeholder {{ color: {c['muted']} !important; opacity: 1 !important; }}
+[data-testid="stChatInput"] button {{
+    background: {ACCENT} !important;
+    border-radius: 10px !important;
+}}
+[data-testid="stChatInput"] button svg {{ fill: #FFFFFF !important; color: #FFFFFF !important; }}
+</style>
+""", unsafe_allow_html=True)
+
+# --- HERO HEADER ---
+st.markdown(
+    '<div class="hero">'
+    '<div class="avatar">MA</div>'
+    '<div>'
+    '<div class="hero-name">Murat Argun</div>'
+    '<div class="hero-role">Industrial Engineering at METU · Product Management Intern at Insider</div>'
+    '<div class="chips">'
+    '<span class="chip chip-live">● Available from Feb 2027</span>'
+    '<span class="chip">Full-time</span>'
+    '<span class="chip">Ankara</span>'
+    '<a class="chip" href="https://www.linkedin.com/in/murat-argun-667874269/" target="_blank">LinkedIn</a>'
+    '<a class="chip" href="mailto:muratt.argun@gmail.com">Email</a>'
+    '</div>'
+    '</div>'
+    '</div>',
+    unsafe_allow_html=True,
+)
+
+bar_left, bar_mid, bar_right = st.columns([0.3, 0.45, 0.25])
+with bar_left:
     try:
         with open("Murat Argun Resume.pdf", "rb") as pdf_file:
             cv_byte = pdf_file.read()
@@ -69,157 +263,17 @@ with col2:
             data=cv_byte,
             file_name="Murat Argun Resume.pdf",
             mime="application/pdf",
-            use_container_width=True
+            use_container_width=True,
         )
     except FileNotFoundError:
         st.download_button(
             label="📄 Download CV",
             data=b"CV file not found.",
             file_name="error_report.txt",
-            use_container_width=True
+            use_container_width=True,
         )
-
-# --- CSS ---
-st.markdown(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    header, #MainMenu, footer {{visibility: hidden;}}
-
-    .new-pro-title {{ margin-top: 5px; }}
-    .title-name {{
-        font-family: 'Inter', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: {title_color};
-        margin: 0;
-        letter-spacing: -0.02em;
-    }}
-    .title-role {{
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        font-weight: 400;
-        color: {title_color};
-        opacity: 0.7;
-        margin: 0;
-        margin-top: 2px;
-    }}
-
-    @media (max-width: 600px) {{
-        .new-pro-title {{
-            text-align: center;
-            margin-bottom: 15px;
-            margin-top: 0px;
-        }}
-        .title-name {{font-size: 1.6rem;}}
-        .title-role {{font-size: 1.1rem;}}
-    }}
-
-    div[data-baseweb="select"] > div {{
-        background-color: {select_bg} !important;
-        color: {text_color} !important;
-        border: 1px solid {border_color} !important;
-    }}
-    div[role="listbox"],
-    div[data-baseweb="popover"] > div,
-    ul[data-baseweb="menu"] {{
-        background-color: {select_list_bg} !important;
-        border: 1px solid {border_color} !important;
-    }}
-    li[role="option"] {{
-        color: {text_color} !important;
-        background-color: {select_list_bg} !important;
-    }}
-    li[role="option"]:hover {{
-        background-color: {user_bubble} !important;
-    }}
-
-    div.stButton > button, div.stDownloadButton > button {{
-        background-color: {btn_bg} !important;
-        color: {btn_text} !important;
-        border: 1px solid {border_color} !important;
-    }}
-    div.stButton > button p, div.stDownloadButton > button p {{
-        color: {btn_text} !important;
-    }}
-    div.stButton > button:hover, div.stDownloadButton > button:hover {{
-        border-color: {text_color} !important;
-        opacity: 0.8;
-    }}
-
-    [data-testid="stChatMessageAvatarContainer"] {{
-        display: none !important;
-        width: 0 !important;
-        margin: 0 !important;
-    }}
-    [data-testid="stChatMessage"] {{
-        background-color: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        margin-bottom: 15px !important;
-    }}
-
-    .msg-user {{
-        background-color: {user_bubble};
-        color: {text_color};
-        padding: 15px 20px;
-        border-radius: 15px 15px 0px 15px;
-        border: 1px solid {border_color};
-        margin-left: auto;
-        margin-right: 0;
-        width: fit-content;
-        max-width: 85%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }}
-    .msg-assistant {{
-        background-color: {asst_bubble};
-        color: {text_color};
-        padding: 15px 20px;
-        border-radius: 15px 15px 15px 0px;
-        border: 1px solid {border_color};
-        margin-left: 0;
-        margin-right: auto;
-        width: fit-content;
-        max-width: 85%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }}
-    .msg-user p, .msg-assistant p {{ margin-bottom: 0 !important; }}
-
-    .stApp, [data-testid="stAppViewContainer"] {{ background-color: {main_bg}; }}
-    [data-testid="stBottom"], [data-testid="stBottom"] > div {{ background-color: {main_bg} !important; }}
-
-    [data-testid="stChatInput"] {{ background-color: {main_bg} !important; }}
-    [data-testid="stChatInput"] > div {{
-        background-color: {input_bg} !important;
-        border: 1px solid {border_color} !important;
-    }}
-    [data-testid="stChatInput"] div[data-baseweb="textarea"],
-    [data-testid="stChatInput"] div[data-baseweb="base-input"],
-    [data-testid="stChatInput"] div[data-baseweb="input"] {{
-        background-color: {input_bg} !important;
-    }}
-    [data-testid="stChatInput"] textarea {{
-        color: {text_color} !important;
-        background-color: {input_bg} !important;
-        -webkit-text-fill-color: {text_color} !important;
-    }}
-    [data-testid="stChatInput"] textarea::placeholder {{
-        color: {text_color} !important;
-        opacity: 0.6 !important;
-    }}
-    [data-testid="stChatInput"] button {{ background-color: transparent !important; }}
-    [data-testid="stChatInput"] svg {{
-        fill: {text_color} !important;
-        color: {text_color} !important;
-    }}
-
-    p, span, h1, textarea, li {{
-        font-family: 'Inter', sans-serif !important;
-        color: {text_color} !important;
-        line-height: 1.6;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
+with bar_right:
+    st.toggle("Light mode", key="light_mode")
 
 # --- API KEY ---
 try:
@@ -366,25 +420,28 @@ for message in st.session_state.messages:
         st.markdown(f"<div class='{div_class}'>\n\n{message['content']}\n\n</div>", unsafe_allow_html=True)
 
 # --- QUICK QUESTIONS ---
+QUICK_QUESTIONS = [
+    ("👋 Who is Murat?", "Who is Murat? Please give a short overview."),
+    ("🚚 Eti project", "Tell me about the Eti project and its results."),
+    ("🔍 Insider internship", "What does Murat do at Insider?"),
+    ("🎯 Why Industrial Eng.?", "Why did Murat move to Industrial Engineering, and why PM, consulting or marketing roles?"),
+    ("🎓 Education & grades", "What is Murat's educational background and GPA?"),
+    ("📅 Availability", "When is Murat available to start, and what kind of role is he looking for?"),
+]
+
 if len(st.session_state.messages) == 1:
+    st.markdown("<div class='section-label'>Try asking</div>", unsafe_allow_html=True)
+    for row_start in range(0, len(QUICK_QUESTIONS), 3):
+        cols = st.columns(3)
+        for col, (label, question) in zip(cols, QUICK_QUESTIONS[row_start:row_start + 3]):
+            with col:
+                if st.button(label, use_container_width=True, key=f"quick_{label}"):
+                    st.session_state.quick_prompt = question
+                    st.rerun()
     st.markdown(
-        f"<div style='margin-bottom: 10px; color: {text_color}; opacity: 0.8; font-size: 0.9rem;'>"
-        f"Quick questions:</div>",
+        "<div class='fine-print'>AI assistant. Answers are generated from Murat's CV and background and may be incomplete.</div>",
         unsafe_allow_html=True,
     )
-    q_col1, q_col2, q_col3 = st.columns(3)
-    with q_col1:
-        if st.button("Who is Murat?", use_container_width=True):
-            st.session_state.quick_prompt = "Who is Murat? Please give a short overview."
-            st.rerun()
-    with q_col2:
-        if st.button("Experience & projects", use_container_width=True):
-            st.session_state.quick_prompt = "What are Murat's internship and project experiences (Insider, Eti, Bosch)?"
-            st.rerun()
-    with q_col3:
-        if st.button("Education & grades", use_container_width=True):
-            st.session_state.quick_prompt = "What is Murat's educational background and GPA?"
-            st.rerun()
 
 prompt = st.chat_input("Type your message...")
 
